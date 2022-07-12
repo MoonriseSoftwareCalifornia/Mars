@@ -1,0 +1,61 @@
+﻿@model UserCreateViewModel
+@{
+    ViewData["Title"] = "New Account Created";
+}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h1>@ViewData["Title"]</h1>
+    </div>
+</div>
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <form id="registerForm" method="get" asp-action="Index">
+            <h2>User Information</h2>
+            <hr />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="mb-3">
+                <label asp-for="EmailAddress"></label>
+                <input asp-for="EmailAddress" class="form-control" aria-required="true" />
+                <span asp-validation-for="EmailAddress" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3 form-check">
+                <input asp-for="EmailConfirmed" type="checkbox" class="form-check-input" aria-required="true" />
+                <label asp-for="EmailConfirmed" class="form-check-label"></label>
+                <span asp-validation-for="EmailConfirmed" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="PhoneNumber"></label>
+                <input asp-for="PhoneNumber" class="form-control" aria-required="true" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3 form-check">
+                <input asp-for="PhoneNumberConfirmed" type="checkbox" class="form-check-input" aria-required="true" />
+                <label asp-for="PhoneNumberConfirmed" class="form-check-label"></label>
+                <span asp-validation-for="PhoneNumberConfirmed" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3 form-check" style="display:none;">
+                <input asp-for="GenerateRandomPassword" type="checkbox" class="form-check-input" aria-required="true" />
+                <label asp-for="GenerateRandomPassword" class="form-check-label"></label>
+                <span asp-validation-for="GenerateRandomPassword" class="text-danger"></span>
+            </div>
+
+            <p>
+                IMPORTANT: The password below is shown one-time-only.
+                Do not transmit through email or any other means
+                where this password can persist.
+            </p>
+
+            <div class="mb-3">
+                <label asp-for="Password"></label>
+                <input asp-for="Password" class="form-control" autocomplete="new-password" aria-required="true" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Finish</button>
+        </form>
+    </div>
+</div>

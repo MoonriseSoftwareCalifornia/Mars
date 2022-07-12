@@ -1,0 +1,79 @@
+﻿@using Microsoft.AspNetCore.Identity
+
+<div class="container mt-5 pt-2">
+    <div class="row">
+        <div class="col">
+            <h3>@ViewData["Title"]</h3>
+            <hr />
+            <p>
+                Below is a list of roles bin
+            </p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <a class="btn btn-sm btn-primary" asp-action="Index" asp-controller="Roles" title="Manage roles created to limit access to specific web pages here.">Publisher Roles</a>
+            @(Html.Kendo().Grid<IdentityRole>
+            ().Name("grid")
+            .Columns(col =>
+            {
+            col.Command(c => c.Edit());
+            col.Bound(b => b.Id);
+            col.Bound(b => b.Name);
+            col.Command(c => c.Destroy());
+            })
+            .ToolBar(toolbar =>
+            {
+            toolbar.Save();
+            toolbar.Search();
+            })
+            .Search(t => t.Field("Name"))
+            .Editable(editable => editable.Mode(GridEditMode.InCell).DisplayDeleteConfirmation(true).ConfirmDelete("Warning:Deletes are permanent!"))
+            .Pageable(pager => pager
+            .Input(true)
+            .Numeric(true)
+            .Info(true)
+            .PreviousNext(true)
+            .Refresh(true)
+            )
+            .Navigatable()
+            .Sortable()
+            .DataSource(dataSource => dataSource
+            .Ajax()
+            .Batch(true)
+            .PageSize(20)
+            .ServerOperation(false)
+            .Events(events => events.Error("error_handler"))
+            .Model(model =>
+            {
+            model.Id(p => p.Id);
+            model.Field(f => f.Name).Editable(true);
+            })
+            .Read("Read_Roles", "Roles")
+            .Update("Update_Roles", "Roles")
+            .Destroy("Delete_Roles", "Roles")
+            )
+            )
+        </div>
+    </div>
+</div>
+
+<script>
+
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors,
+                function(key, value) {
+                    if ('errors' in value) {
+                        $.each(value.errors,
+                            function() {
+                                message += this + "\n";
+                            });
+                    }
+                });
+            alert(message);
+        }
+    }
+
+</script>
