@@ -19,8 +19,8 @@
     </div>
     <div class="row">
         <div class="col">
-            <a class="btn btn-sm btn-primary" asp-action="Create" asp-controller="Users" title="Create a user account here.">Create Account</a>
-            <a class="btn btn-sm btn-primary" asp-action="Index" asp-controller="Roles" title="Manage roles created to limit access to specific web pages here.">Roles</a>
+            <a class="btn btn-sm btn-primary" asp-action="Create" asp-controller="Users" title="Create a user account here.">Create Single User</a>
+            <a class="btn btn-sm btn-primary" asp-action="Index" asp-controller="Roles" title="Manage roles created to limit access to specific web pages here.">Manage Roles</a>
             @(Html.Kendo().Grid<UserIndexViewModel>
             ().Name("grid")
             .Columns(col =>
@@ -39,6 +39,7 @@
             })
             .ToolBar(toolbar =>
             {
+            toolbar.Create().Text("Add");
             toolbar.Save();
             toolbar.Search();
             })
@@ -62,15 +63,16 @@
             .Model(model =>
             {
             model.Id(p => p.UserId);
-            model.Field(f => f.EmailAddress).Editable(false);
-            model.Field(f => f.PhoneNumber).Editable(false);
+            model.Field(f => f.UserId).Editable(false);
+            model.Field(f => f.EmailAddress).Editable(true);
+            model.Field(f => f.PhoneNumber).Editable(true);
             model.Field(f => f.EmailConfirmed).Editable(true);
             model.Field(f => f.PhoneNumberConfirmed).Editable(true);
-            model.Field(f => f.UserId).Editable(false);
             })
+            .Create("BulkCreate_Users", "Users")
             .Read("Read_Users", "Users")
-            .Update("Update_Users", "Users")
-            .Destroy("Delete_Users", "Users")
+            .Update("BulkUpdate_Users", "Users")
+            .Destroy("BulkDelete_Users", "Users")
             )
             )
         </div>

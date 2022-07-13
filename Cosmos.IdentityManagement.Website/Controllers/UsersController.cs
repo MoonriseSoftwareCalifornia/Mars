@@ -67,6 +67,46 @@ namespace Cosmos.IdentityManagement.Website.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
+            var result = await CreateAccount(model);
+
+            if (result.IdentityResult.Succeeded)
+            {
+                if (result.UserCreateViewModel == null)
+                {
+                    return View("UserCreated", null);
+                }
+                else
+                {
+                    return View("UserCreated", new UserCreatedViewModel(result.UserCreateViewModel, _emailSender.Response));
+                }
+            }
+
+            foreach (var error in result.IdentityResult.Errors)
+            {
+                ModelState.AddModelError("", $"Code: {error.Code} Description: {error.Description}");
+            }
+
+            return View(model);
+        }
+
+        /// <summary>
+        /// Creates a single user account
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="isBatchJob">Email verifications work flows are different for users created in batch.</param>
+        /// <returns></returns>
+        private async Task<BulkUserCreatedResult> CreateAccount(UserCreateViewModel model, bool isBatchJob = false)
+        {
+            var result = new BulkUserCreatedResult();
+
+            if (string.IsNullOrEmpty(model.Password) && model.GenerateRandomPassword == false)
+            {
+                ModelState.AddModelError("GenerateRandomPassword", "Must generate password if one not given.");
+            }
+
+            if (!ModelState.IsValid)
+                return null;
+
             if (model.GenerateRandomPassword)
             {
                 var password = new PasswordGenerator.Password();
@@ -85,38 +125,72 @@ namespace Cosmos.IdentityManagement.Website.Controllers
                 PhoneNumberConfirmed = model.PhoneNumberConfirmed
             };
 
-            var result = await _userManager.CreateAsync(user, model.Password);
+            result.IdentityResult = await _userManager.CreateAsync(user, model.Password);
 
-            if (result.Succeeded)
+            if (result.IdentityResult.Succeeded)
             {
-                if (!model.EmailConfirmed)
-                {
-                    var userId = user.Id;
 
+                // Do we have to send an email confirmation or a reset password message?
+                if (isBatchJob)
+                {
+                    // Always send a reset password email in this case
+                    // For more information on how to enable account confirmation and password reset please
+                    // visit https://go.microsoft.com/fwlink/?LinkID=532713
+                    var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                    var callbackUrl = Url.Page(
+                        "/Account/ResetPassword",
+                        pageHandler: null,
+                        values: new { area = "Identity", code },
+                        protocol: Request.Scheme);
+
+                    var identityUser = await _userManager.GetUserAsync(User);
+
+                    await _emailSender.SendEmailAsync(
+                        user.Email,
+                        "Create Password",
+                        $"A new user account was created for you by {identityUser.Email}. Now we need you to create a password for your account by  <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+                    result.SendGridResponse = _emailSender.Response;
+                    result.UserCreateViewModel = model;
+
+                    if (!result.SendGridResponse.IsSuccessStatusCode)
+                    {
+                        ModelState.AddModelError("", $"Could not send reset password email to: '{model.EmailAddress}'. Error: {result.SendGridResponse.Headers}");
+                    }
+                }
+                else
+                {
+                    // Send an email confirmation if required.
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
                     var callbackUrl = Url.Page(
                         "/Account/ConfirmEmail",
                         pageHandler: null,
-                        values: new { area = "Identity", userId = userId, code = code, returnUrl = "/" },
+                        values: new { area = "Identity", userId = user.Id, code = code, returnUrl = "/" },
                         protocol: Request.Scheme);
 
-                    await _emailSender.SendEmailAsync(model.EmailAddress, "Confirm your email",
+                    await _emailSender.SendEmailAsync(user.Email, "Confirm your email",
                         $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
+                    result.SendGridResponse = _emailSender.Response;
+                    result.UserCreateViewModel = model;
 
-                    return View("UserCreated", new UserCreatedViewModel(model, _emailSender.Response));
+                    if (!result.SendGridResponse.IsSuccessStatusCode)
+                    {
+                        ModelState.AddModelError("", $"Could not send email to: '{model.EmailAddress}'. Error: {result.SendGridResponse.Headers}");
+                    }
                 }
 
-                return View("UserCreated", null);
+                return result;
             }
 
-            foreach(var error in result.Errors)
+            foreach (var error in result.IdentityResult.Errors)
             {
-                ModelState.AddModelError("", $"Code: { error.Code } Description: { error.Description }");
+                ModelState.AddModelError("", $"Code: {error.Code} Description: {error.Description}");
             }
 
-            return View(model);
+            return null;
         }
 
         /// <summary>
@@ -139,7 +213,27 @@ namespace Cosmos.IdentityManagement.Website.Controllers
             return View();
         }
 
-        public async Task<IActionResult> Delete_Users([DataSourceRequest] DataSourceRequest request,
+        public async Task<IActionResult> BulkCreate_Users([DataSourceRequest] DataSourceRequest request, [Bind(Prefix = "models")] IEnumerable<UserIndexViewModel> users)
+        {
+            var results = new List<UserIndexViewModel>();
+
+            if (users != null && ModelState.IsValid)
+            {
+                foreach (var user in users)
+                {
+                    _ = await CreateAccount(new UserCreateViewModel()
+                    {
+                        EmailAddress = user.EmailAddress,
+                        EmailConfirmed = false,
+                        PhoneNumber = user.PhoneNumber,
+                        PhoneNumberConfirmed = user.PhoneNumberConfirmed
+                    }, true);
+                }
+            }
+
+            return Json(results.ToDataSourceResult(request, ModelState));
+        }
+        public async Task<IActionResult> BulkDelete_Users([DataSourceRequest] DataSourceRequest request,
             [Bind(Prefix = "models")] IEnumerable<UserIndexViewModel> users)
         {
             if (_userManager.Users.Count() < 2)
@@ -225,7 +319,7 @@ namespace Cosmos.IdentityManagement.Website.Controllers
         /// <param name="users"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<ActionResult> Update_Users([DataSourceRequest] DataSourceRequest request,
+        public async Task<ActionResult> BulkUpdate_Users([DataSourceRequest] DataSourceRequest request,
             [Bind(Prefix = "models")] IEnumerable<UserIndexViewModel> users)
         {
             if (users != null && ModelState.IsValid)
@@ -234,10 +328,22 @@ namespace Cosmos.IdentityManagement.Website.Controllers
                 {
                     var identityUser = await _userManager.FindByIdAsync(user.UserId);
 
+                    identityUser.UserName = user.EmailAddress;
+                    identityUser.NormalizedUserName = user.EmailAddress.ToUpperInvariant();
+                    identityUser.Email = user.EmailAddress;
+                    identityUser.NormalizedEmail = user.EmailAddress.ToUpperInvariant();
                     identityUser.EmailConfirmed = user.EmailConfirmed;
                     identityUser.PhoneNumberConfirmed = user.PhoneNumberConfirmed;
 
-                    await _userManager.UpdateAsync(identityUser);
+                    var result = await _userManager.UpdateAsync(identityUser);
+
+                    if (!result.Succeeded)
+                    {
+                        foreach (var error in result.Errors)
+                        {
+                            ModelState.AddModelError("", $"Error code: {error.Code} Error message: {error.Description}.");
+                        }
+                    }
                 }
             }
 
