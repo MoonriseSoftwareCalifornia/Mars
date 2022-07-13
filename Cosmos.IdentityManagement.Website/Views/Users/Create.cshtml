@@ -11,8 +11,9 @@
     <div class="col-md-6">
         <form id="registerForm" method="post">
             <h2>User Information</h2>
+            <a asp-action="Index">Back to list <i class="fas fa-angle-double-right"></i></a>
             <hr />
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div asp-validation-summary="All" class="text-danger"></div>
             <div class="mb-3">
                 <label asp-for="EmailAddress"></label>
                 <input asp-for="EmailAddress" class="form-control" aria-required="true" />
@@ -21,7 +22,7 @@
 
             <div class="mb-3 form-check">
                 <input asp-for="EmailConfirmed" type="checkbox" class="form-check-input" aria-required="true" />
-                <label asp-for="EmailConfirmed" class="form-check-label"></label>
+                <label asp-for="EmailConfirmed" class="form-check-label"></label> (No confirmation email will be sent if checked.)
                 <span asp-validation-for="EmailConfirmed" class="text-danger"></span>
             </div>
 

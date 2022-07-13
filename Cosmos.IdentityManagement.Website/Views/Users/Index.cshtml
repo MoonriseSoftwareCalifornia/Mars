@@ -25,14 +25,17 @@
             ().Name("grid")
             .Columns(col =>
             {
-            col.Command(command => {command.Custom("Resend Email").Click("resendEmail").IconClass("fa-solid fa-envelope"); });
+            col.Command(command => {command.Custom("Resend Email").Click("resendEmail").IconClass("fas fa-envelope"); });
             col.Bound(b => b.UserId).Hidden();
             col.Bound(b => b.EmailAddress);
             col.Bound(b => b.EmailConfirmed);
             col.Bound(b => b.PhoneNumber);
             col.Bound(b => b.PhoneNumberConfirmed);
             col.Bound(b => b.TwoFactorEnabled);
-            col.Command(command => { command.Custom("Access").Click("manageRoles").IconClass("fa fa-shield"); });
+            col.Command(command => { 
+                command.Custom("Access").Click("manageRoles").IconClass("fa fa-shield");
+                command.Destroy().Text("Delete");
+            });
             })
             .ToolBar(toolbar =>
             {

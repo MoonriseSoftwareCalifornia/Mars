@@ -37,7 +37,7 @@ namespace Cosmos.IdentityManagement.Website.Controllers
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
-            _emailSender = (SendGridEmailSender) emailSender;
+            _emailSender = (SendGridEmailSender)emailSender;
         }
 
         /// <summary>
@@ -73,19 +73,17 @@ namespace Cosmos.IdentityManagement.Website.Controllers
                 model.Password = password.Next();
             }
 
-            var user = Activator.CreateInstance<IdentityUser>();
-
-
-
-            await _userManager.SetUserNameAsync(user, model.EmailAddress);
-
-            user.EmailConfirmed = model.EmailConfirmed;
-
-            await _userManager.SetEmailAsync(user, model.EmailAddress);
-
-            await _userManager.SetPhoneNumberAsync(user, model.PhoneNumber);
-
-            user.PhoneNumberConfirmed = model.PhoneNumberConfirmed;
+            var user = new IdentityUser()
+            {
+                Email = model.EmailAddress,
+                EmailConfirmed = model.EmailConfirmed,
+                NormalizedEmail = model.EmailAddress.ToUpperInvariant(),
+                UserName = model.EmailAddress,
+                NormalizedUserName = model.EmailAddress.ToUpperInvariant(),
+                Id = Guid.NewGuid().ToString(),
+                PhoneNumber = model.PhoneNumber,
+                PhoneNumberConfirmed = model.PhoneNumberConfirmed
+            };
 
             var result = await _userManager.CreateAsync(user, model.Password);
 
@@ -106,10 +104,19 @@ namespace Cosmos.IdentityManagement.Website.Controllers
                     await _emailSender.SendEmailAsync(model.EmailAddress, "Confirm your email",
                         $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
+
+                    return View("UserCreated", new UserCreatedViewModel(model, _emailSender.Response));
                 }
+
+                return View("UserCreated", null);
             }
 
-            return View("UserCreated", model);
+            foreach(var error in result.Errors)
+            {
+                ModelState.AddModelError("", $"Code: { error.Code } Description: { error.Description }");
+            }
+
+            return View(model);
         }
 
         /// <summary>

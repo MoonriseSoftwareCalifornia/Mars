@@ -35,7 +35,6 @@ namespace Cosmos.IdentityManagement.Website.Models
         /// User's phone number (can be SMS)
         /// </summary>
         [Display(Name = "Phone Confirmed")]
-        [Phone]
         public bool PhoneNumberConfirmed { get; set; }
 
         [Display(Name = "2FA Enabled")]
