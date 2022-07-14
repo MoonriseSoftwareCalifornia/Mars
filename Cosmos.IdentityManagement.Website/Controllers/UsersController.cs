@@ -129,6 +129,13 @@ namespace Cosmos.IdentityManagement.Website.Controllers
 
             if (result.IdentityResult.Succeeded)
             {
+                if (model.EmailConfirmed)
+                {
+                    // Confirm email if set.
+                    var emailCode = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var result2 = await _userManager.ConfirmEmailAsync(user,
+                        Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(emailCode)));
+                }
 
                 // Do we have to send an email confirmation or a reset password message?
                 if (isBatchJob)
@@ -213,18 +220,18 @@ namespace Cosmos.IdentityManagement.Website.Controllers
             return View();
         }
 
-        public async Task<IActionResult> BulkCreate_Users([DataSourceRequest] DataSourceRequest request, [Bind(Prefix = "models")] IEnumerable<UserIndexViewModel> users)
+        public async Task<IActionResult> BulkCreate_Users([DataSourceRequest] DataSourceRequest request, [Bind(Prefix = "models")] IEnumerable<UserIndexViewModel> models)
         {
             var results = new List<UserIndexViewModel>();
 
-            if (users != null && ModelState.IsValid)
+            if (models != null && ModelState.IsValid)
             {
-                foreach (var user in users)
+                foreach (var user in models)
                 {
                     _ = await CreateAccount(new UserCreateViewModel()
                     {
                         EmailAddress = user.EmailAddress,
-                        EmailConfirmed = false,
+                        EmailConfirmed = user.EmailConfirmed,
                         PhoneNumber = user.PhoneNumber,
                         PhoneNumberConfirmed = user.PhoneNumberConfirmed
                     }, true);
