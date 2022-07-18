@@ -1,5 +1,8 @@
-﻿@using Microsoft.AspNetCore.Identity
-
+﻿@model string[]
+@using Microsoft.AspNetCore.Identity
+@{
+    ViewData["Title"] = "Roles";
+}
 <div class="container mt-5 pt-2">
     <div class="row">
         <div class="col">
@@ -10,32 +13,34 @@
             </p>
         </div>
     </div>
+    @if (Model != null && Model.Any())
+    {
+        <div class="row">
+            <div class="col">
+                <p>@Model.Count() users selected.</p>
+                <a id="btnAddToRoles" class="btn btn-sm btn-primary" style="display:none">Add Selected Users to Roles</a>
+                <a id="btnRemoveFromRoles" class="btn btn-sm btn-primary" style="display:none">Remove Selected Users from Roles</a>
+            </div>
+        </div>
+    }
     <div class="row">
         <div class="col">
             <a class="btn btn-sm btn-primary" asp-action="Index" asp-controller="Roles" title="Manage roles created to limit access to specific web pages here.">Publisher Roles</a>
-            @(Html.Kendo().Grid<IdentityRole>
-            ().Name("grid")
+            @(Html.Kendo().Grid<IdentityRole>().Name("grid")
             .Columns(col =>
             {
-            col.Command(c => c.Edit());
+            col.Select().Width(50);
+            col.Command(command => command.Custom("Email").Click("resendEmail").IconClass("fas fa-envelope"));
             col.Bound(b => b.Id);
             col.Bound(b => b.Name);
-            col.Command(c => c.Destroy());
+            col.Command(command => {
+                command.Custom("Users").Click("manageUsers").IconClass("fa fa-user");
+                command.Destroy().Text("Delete"); });
             })
-            .ToolBar(toolbar =>
-            {
-            toolbar.Save();
-            toolbar.Search();
-            })
+            .ToolBar(toolbar => { toolbar.Create(); toolbar.Save(); toolbar.Search(); })
             .Search(t => t.Field("Name"))
             .Editable(editable => editable.Mode(GridEditMode.InCell).DisplayDeleteConfirmation(true).ConfirmDelete("Warning:Deletes are permanent!"))
-            .Pageable(pager => pager
-            .Input(true)
-            .Numeric(true)
-            .Info(true)
-            .PreviousNext(true)
-            .Refresh(true)
-            )
+            .Pageable(pager => pager.Input(true).Numeric(true).Info(true).PreviousNext(true).Refresh(true))
             .Navigatable()
             .Sortable()
             .DataSource(dataSource => dataSource
@@ -52,14 +57,13 @@
             .Read("Read_Roles", "Roles")
             .Update("Update_Roles", "Roles")
             .Destroy("Delete_Roles", "Roles")
-            )
-            )
+            ))
         </div>
     </div>
 </div>
 
 <script>
-
+    var selectedIds;
     function error_handler(e) {
         if (e.errors) {
             var message = "Errors:\n";
@@ -76,4 +80,18 @@
         }
     }
 
+    function onChange(arg) {
+        selectedIds = this.selectedKeyNames(); //.join(", ");
+        if (selectedIds.length > 0) {
+            $("#btnAddToRoles").show();
+            $("#btnRemoveFromRoles").show();
+        } else {
+            $("#btnAddToRoles").hide();
+            $("#btnRemoveFromRoles").hide();
+        }
+    }
+
+    function manageUsers(e) {
+
+    }
 </script>

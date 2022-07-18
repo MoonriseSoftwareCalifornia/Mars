@@ -5,20 +5,21 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Cosmos.IdentityManagement.Website.Controllers
 {
-    [Authorize("User Administrators")]
+    [Authorize(Roles = "User Administrators")]
     public class RolesController : Controller
     {
-        private readonly ILogger<UsersController> _logger;
+        private readonly ILogger<HomeController> _logger;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SendGridEmailSender _emailSender;
 
         public RolesController(
-               ILogger<UsersController> logger,
+               ILogger<HomeController> logger,
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
             RoleManager<IdentityRole> roleManager,
@@ -31,11 +32,45 @@ namespace Cosmos.IdentityManagement.Website.Controllers
             _roleManager = roleManager;
             _emailSender = (SendGridEmailSender)emailSender;
         }
-        public IActionResult Index()
+        public IActionResult Index([Bind("ids")] string ids)
         {
-            return View();
+            if (string.IsNullOrEmpty(ids))
+                return View();
+
+            var model = ids.Split(',');
+            return View(model);
         }
 
+        public async Task<IActionResult> BulkCreate_Roles([DataSourceRequest] DataSourceRequest request, [Bind(Prefix = "models")] IEnumerable<IdentityRole> models)
+        {
+            var results = new List<IdentityRole>();
+
+            if (models != null && ModelState.IsValid)
+            {
+                foreach (var role in models)
+                {
+                    role.Id = Guid.NewGuid().ToString();
+                    var result = await _roleManager.CreateAsync(role);
+
+                    if (result.Succeeded)
+                    {
+                        var identityRole = await _roleManager.FindByIdAsync(role.Id);
+
+                        await _roleManager.SetRoleNameAsync(identityRole, role.Name);
+                        await _roleManager.UpdateNormalizedRoleNameAsync(identityRole);
+                    }
+                    else
+                    {
+                        foreach (var error in result.Errors)
+                        {
+                            ModelState.AddModelError("", $"Error code: {error.Code}. Message: {error.Description}");
+                        }
+                    }
+                }
+            }
+
+            return Json(results.ToDataSourceResult(request, ModelState));
+        }
 
         /// <summary>
         /// Reads a list of users
@@ -45,7 +80,8 @@ namespace Cosmos.IdentityManagement.Website.Controllers
         /// <returns></returns>
         public async Task<IActionResult> Read_Roles([DataSourceRequest] DataSourceRequest request)
         {
-            return Json(await _roleManager.Roles.OrderBy(o => o.Name).ToDataSourceResultAsync(request));
+            var model = await _roleManager.Roles.OrderBy(o => o.Name).ToListAsync();
+            return Json(await model.ToDataSourceResultAsync(request));
         }
 
         /// <summary>
@@ -55,7 +91,7 @@ namespace Cosmos.IdentityManagement.Website.Controllers
         /// <param name="users"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<ActionResult> Update_Roles([DataSourceRequest] DataSourceRequest request,
+        public async Task<ActionResult> BulkUpdate_Roles([DataSourceRequest] DataSourceRequest request,
             [Bind(Prefix = "models")] IEnumerable<IdentityRole> roles)
         {
             if (roles != null && ModelState.IsValid)
@@ -79,17 +115,17 @@ namespace Cosmos.IdentityManagement.Website.Controllers
         /// <param name="users"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<ActionResult> Delete_Roles([DataSourceRequest] DataSourceRequest request,
+        public async Task<ActionResult> BulkDelete_Roles([DataSourceRequest] DataSourceRequest request,
             [Bind(Prefix = "models")] IEnumerable<IdentityRole> roles)
         {
 
-            if (roles.Any(a => a.Name.Equals("User Administrators", StringComparison.InvariantCultureIgnoreCase)))
-            {
-                ModelState.AddModelError("", "Cannot remove the User Administrators role.");
-            }
-
             if (roles != null && ModelState.IsValid)
             {
+                if (roles.Any(a => a.Name.Equals("User Administrators", StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    ModelState.AddModelError("", "Cannot remove the User Administrators role.");
+                }
+
                 foreach (var role in roles)
                 {
                     var identityRole = await _roleManager.FindByIdAsync(role.Id);

@@ -1,9 +1,132 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "MARS";
 }
-
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-    <p><a href="@Url.Action("Index", "Users")">User List</a></p>
+<style>
+    .fa-shield {
+        padding-right: 4px;
+    }
+</style>
+<div class="container mt-5 pt-2">
+    <div class="row">
+        <div class="col">
+            <h3>@ViewData["Title"]</h3>
+            <span class="text-muted">Managed Account Resources System</span>
+            <hr />
+            <p>
+                MARS enables administrators to manage user accounts and their role management.
+            </p>
+            <div asp-validation-summary="All" class="text-danger"></div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <a class="btn btn-sm btn-primary" asp-action="Create" asp-controller="Users" title="Create a user account here.">Create Single User</a>
+            <a class="btn btn-sm btn-primary" asp-action="Index" asp-controller="Roles" title="Manage roles created to limit access to specific web pages here.">Manage Roles</a>
+            <a id="btnAddRemoveRoles" class="btn btn-sm btn-primary" style="display:none">Add/Remove Users from Roles</a>
+            @(Html.Kendo().Grid<UserIndexViewModel>
+            ().Name("grid")
+            .Columns(col =>
+            {
+            col.Select().Width(50);
+            col.Command(command => {command.Custom("Resend Email").Click("resendEmail").IconClass("fas fa-envelope"); });
+            col.Bound(b => b.UserId).Hidden();
+            col.Bound(b => b.EmailAddress);
+            col.Bound(b => b.EmailConfirmed);
+            col.Bound(b => b.PhoneNumber);
+            col.Bound(b => b.PhoneNumberConfirmed);
+            col.Bound(b => b.TwoFactorEnabled);
+            col.Command(command => {
+            command.Custom("Roles").Click("manageRoles").IconClass("fa fa-shield");
+            command.Destroy().Text("Delete");
+            });
+            })
+            .ToolBar(toolbar =>
+            {
+            toolbar.Create().Text("Add");
+            toolbar.Save();
+            toolbar.Search();
+            })
+            .PersistSelection()
+            .Search(t => t.Field("EmailAddress"))
+            .Editable(editable => editable.Mode(GridEditMode.InCell).DisplayDeleteConfirmation(true).ConfirmDelete("Warning:Deletes are permanent!"))
+            .Pageable(pager => pager.Input(true).Numeric(true).Info(true).PreviousNext(true).Refresh(true))
+            .Navigatable().Sortable().Events(ev => ev.Change("onChange"))
+            .DataSource(dataSource => dataSource.Ajax().Batch(true).PageSize(20).ServerOperation(false)
+            .Events(events => events.Error("error_handler"))
+            .Model(model =>
+            {
+            model.Id(p => p.UserId);
+            model.Field(f => f.UserId).Editable(false);
+            model.Field(f => f.EmailAddress).Editable(true);
+            model.Field(f => f.PhoneNumber).Editable(true);
+            model.Field(f => f.EmailConfirmed).Editable(true);
+            model.Field(f => f.PhoneNumberConfirmed).Editable(true);
+            })
+            .Create("BulkCreate_Users", "Home")
+            .Read("Read_Users", "Home")
+            .Update("BulkUpdate_Users", "Home")
+            .Destroy("BulkDelete_Users", "Home")
+            )
+            )
+        </div>
+    </div>
 </div>
+
+<form id="frmOpenRoles" asp-action="Index" asp-controller="Roles" method="post">
+    <input id="ids" name="ids" type="hidden" />
+</form>
+
+<script>
+
+    function manageRoles(e) {
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        window.location = "@Url.Action("RoleMembership")/" + dataItem.UserId;
+    }
+
+    function resendEmail(e) {
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        $.post(
+            "@Url.Action("ResendEmailConfirmation")/" + dataItem.UserId,
+            function(data) {
+                if (data.Success) {
+                    alert("Email confirmation sent.");
+                } else {
+                    alert("Error: " + data.Error);
+                }
+            }
+        );
+    }
+
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors,
+                function(key, value) {
+                    if ('errors' in value) {
+                        $.each(value.errors,
+                            function() {
+                                message += this + "\n";
+                            });
+                    }
+                });
+            alert(message);
+        }
+    }
+
+    function onChange(arg) {
+        var selectedIds = this.selectedKeyNames();
+        $("#ids").val(selectedIds);
+        if (selectedIds.length > 0) {
+            $("#btnAddRemoveRoles").show();
+        } else {
+            $("#btnAddRemoveRoles").hide();
+        }
+    }
+
+    $(document).ready(function() {
+        $("#btnAddRemoveRoles").click(
+            function() {
+                $("#frmOpenRoles").submit();
+            });
+    });
+</script>

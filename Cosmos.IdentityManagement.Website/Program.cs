@@ -16,14 +16,17 @@ var cosmosIdentityDbName = builder.Configuration.GetValue<string>("CosmosIdentit
 // 1. Create the database if it does not already exist.
 // 2. Create the required containers if they do not already exist.
 // IMPORTANT: Remove this setting if after first run. It will improve startup performance.
-var setupCosmosDb = builder.Configuration.GetValue<string>("SetupCosmosDb");
+var setupCosmosDb = builder.Configuration.GetValue<string>("SetupDb");
+
+// Supported values "Cosmos" or "mssql";
+var dbProvider = builder.Configuration.GetValue<string>("DbProvider");
 
 // If the following is set, it will create the Cosmos database and
 //  required containers.
 if (bool.TryParse(setupCosmosDb, out var setup) && setup)
 {
     var builder1 = new DbContextOptionsBuilder<ApplicationDbContext>();
-    builder1.UseCosmos(connectionString, cosmosIdentityDbName);
+        builder1.UseCosmos(connectionString, cosmosIdentityDbName);
 
     using (var dbContext = new ApplicationDbContext(builder1.Options))
     {
