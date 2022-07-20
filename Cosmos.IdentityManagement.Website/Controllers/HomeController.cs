@@ -232,7 +232,7 @@ namespace Cosmos.IdentityManagement.Website.Controllers
                     _ = await CreateAccount(new UserCreateViewModel()
                     {
                         EmailAddress = user.EmailAddress,
-                        EmailConfirmed = user.EmailConfirmed,
+                        EmailConfirmed = true,
                         PhoneNumber = user.PhoneNumber,
                         PhoneNumberConfirmed = user.PhoneNumberConfirmed
                     }, true);
@@ -273,62 +273,13 @@ namespace Cosmos.IdentityManagement.Website.Controllers
         }
 
         /// <summary>
-        /// Reads a list of users
-        /// </summary>
-        /// <param name="request"></param>
-        /// <param name="roleId"></param>
-        /// <returns></returns>
-        public async Task<IActionResult> Read_Users([DataSourceRequest] DataSourceRequest request, string roleId = "")
-        {
-            var users = new List<UserIndexViewModel>();
-
-            try
-            {
-
-                if (string.IsNullOrEmpty(roleId))
-                {
-                    users.AddRange(await _userManager.Users.Select(s => new UserIndexViewModel
-                    {
-                        UserId = s.Id,
-                        EmailAddress = s.Email,
-                        EmailConfirmed = s.EmailConfirmed,
-                        PhoneNumber = s.PhoneNumber,
-                        IsLockedOut = s.LockoutEnd.HasValue ? s.LockoutEnd < DateTimeOffset.UtcNow : false
-                    }).OrderBy(o => o.EmailAddress).ToArrayAsync());
-
-                }
-                else
-                {
-                    var identityRole = await _roleManager.FindByIdAsync(roleId);
-
-                    var usersInRole = await _userManager.GetUsersInRoleAsync(identityRole.Name);
-
-                    users.AddRange(usersInRole.Select(s => new UserIndexViewModel
-                    {
-                        UserId = s.Id,
-                        EmailAddress = s.Email,
-                        EmailConfirmed = s.EmailConfirmed,
-                        PhoneNumber = s.PhoneNumber,
-                        IsLockedOut = s.LockoutEnd.HasValue ? s.LockoutEnd < DateTimeOffset.UtcNow : false
-                    }).OrderBy(o => o.EmailAddress).ToArray());
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, e.Message);
-            }
-
-            return Json(await users.ToDataSourceResultAsync(request));
-        }
-
-        /// <summary>
         /// Updates email confirmed or phone number confirmed for a set of users
         /// </summary>
         /// <param name="request"></param>
         /// <param name="users"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<ActionResult> BulkUpdate_Users([DataSourceRequest] DataSourceRequest request,
+        public async Task<IActionResult> BulkUpdate_Users([DataSourceRequest] DataSourceRequest request,
             [Bind(Prefix = "models")] IEnumerable<UserIndexViewModel> users)
         {
             if (users != null && ModelState.IsValid)
@@ -357,6 +308,77 @@ namespace Cosmos.IdentityManagement.Website.Controllers
             }
 
             return Json(await users.ToDataSourceResultAsync(request, ModelState));
+        }
+
+        /// <summary>
+        /// Gets a total list of roles
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IActionResult> GetRoles(string text)
+        {
+            var query = _roleManager.Roles.OrderBy(o => o.Name).Select(s => new
+            {
+                s.Id,
+                s.Name
+            }).AsQueryable();
+
+            if (!string.IsNullOrEmpty(text))
+            {
+                query = query.Where(s => s.Name.ToLower().StartsWith(text.ToLower()));
+            }
+
+            var roles = await query.ToListAsync();
+            
+            return Json(roles);
+        }
+
+        /// <summary>
+        /// Reads a list of users
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="id">Role ID</param>
+        /// <returns></returns>
+        public async Task<IActionResult> Read_Users([DataSourceRequest] DataSourceRequest request, string id = "")
+        {
+            var users = new List<UserIndexViewModel>();
+
+            try
+            {
+
+                if (string.IsNullOrEmpty(id))
+                {
+                    users.AddRange(await _userManager.Users.Select(s => new UserIndexViewModel
+                    {
+                        UserId = s.Id,
+                        EmailAddress = s.Email,
+                        EmailConfirmed = s.EmailConfirmed,
+                        PhoneNumber = s.PhoneNumber,
+                        IsLockedOut = s.LockoutEnd.HasValue ? s.LockoutEnd < DateTimeOffset.UtcNow : false
+                    }).OrderBy(o => o.EmailAddress).ToArrayAsync());
+
+                }
+                else
+                {
+                    var identityRole = await _roleManager.FindByIdAsync(id);
+
+                    var usersInRole = await _userManager.GetUsersInRoleAsync(identityRole.Name);
+
+                    users.AddRange(usersInRole.Select(s => new UserIndexViewModel
+                    {
+                        UserId = s.Id,
+                        EmailAddress = s.Email,
+                        EmailConfirmed = s.EmailConfirmed,
+                        PhoneNumber = s.PhoneNumber,
+                        IsLockedOut = s.LockoutEnd.HasValue ? s.LockoutEnd < DateTimeOffset.UtcNow : false
+                    }).OrderBy(o => o.EmailAddress).ToArray());
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
+
+            return Json(await users.ToDataSourceResultAsync(request));
         }
 
         /// <summary>
@@ -409,6 +431,87 @@ namespace Cosmos.IdentityManagement.Website.Controllers
             }
 
             return Json(result);
+        }
+
+        /// <summary>
+        /// Gets the role assignments for a user
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        private async Task<UserRoleAssignmentsViewModel> GetRoleAssignmentsForUser(string id)
+        {
+            var roles = new List<IdentityRole>();
+            var user = await _userManager.FindByIdAsync(id);
+            var roleNames = await _userManager.GetRolesAsync(user);
+            foreach (var name in roleNames)
+            {
+                roles.Add(await _roleManager.FindByNameAsync(name));
+            }
+
+            return new UserRoleAssignmentsViewModel()
+            {
+                Id = user.Id,
+                Email = user.Email,
+                IdentityRoles = roles
+            };
+        }
+
+        /// <summary>
+        /// Manages the role assignments for a user
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> UserRoles(string id)
+        {
+            return View(await GetRoleAssignmentsForUser(id));
+        }
+
+        /// <summary>
+        /// Updates a user's role assignments
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="roleIds"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UserRoles(UserRoleAssignmentsViewModel model)
+        {
+            var user = await _userManager.FindByIdAsync(model.Id);
+            var roleNames = await _userManager.GetRolesAsync(user);
+
+            // First, remove from all roles
+            foreach (var name in roleNames)
+            {
+                if (name.Equals("User Administrators", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    // Make sure there is at least one administrator remaining
+                    var administrators = await _userManager.GetUsersInRoleAsync("User Administrators");
+
+                    if (administrators.Count() > 1)
+                    {
+                        await _userManager.RemoveFromRoleAsync(user, name);
+                    }
+                }
+                else
+                {
+                    await _userManager.RemoveFromRoleAsync(user, name);
+                }
+            }
+
+            var roles = new List<IdentityRole>();
+
+            foreach(var roleId in model.RoleIds)
+            {
+                roles.Add(await _roleManager.FindByIdAsync(roleId));
+            }
+
+            // Now add back the new assignments
+            foreach(var role in roles)
+            {
+                await _userManager.AddToRoleAsync(user, role.Name);
+            }
+
+            return View(await GetRoleAssignmentsForUser(model.Id));
         }
 
         public IActionResult Privacy()

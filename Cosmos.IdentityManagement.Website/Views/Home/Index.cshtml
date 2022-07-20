@@ -13,16 +13,17 @@
             <span class="text-muted">Managed Account Resources System</span>
             <hr />
             <p>
-                MARS enables administrators to manage user accounts and their role management.
+                MARS is a user accounts and role assignments management system for ASP.NET.
             </p>
             <div asp-validation-summary="All" class="text-danger"></div>
         </div>
     </div>
     <div class="row">
         <div class="col">
-            <a class="btn btn-sm btn-primary" asp-action="Create" asp-controller="Users" title="Create a user account here.">Create Single User</a>
+            <a class="btn btn-sm btn-primary" asp-action="Create" title="Create a user account here.">Create Single User</a>
             <a class="btn btn-sm btn-primary" asp-action="Index" asp-controller="Roles" title="Manage roles created to limit access to specific web pages here.">Manage Roles</a>
             <a id="btnAddRemoveRoles" class="btn btn-sm btn-primary" style="display:none">Add/Remove Users from Roles</a>
+            <span id="spanChangeNotice" class="text-muted" style="display:none">Remember to click &quot;Save&quot; or &quot;Cancel&quot; when done.</span>
             @(Html.Kendo().Grid<UserIndexViewModel>
             ().Name("grid")
             .Columns(col =>
@@ -50,7 +51,7 @@
             .Search(t => t.Field("EmailAddress"))
             .Editable(editable => editable.Mode(GridEditMode.InCell).DisplayDeleteConfirmation(true).ConfirmDelete("Warning:Deletes are permanent!"))
             .Pageable(pager => pager.Input(true).Numeric(true).Info(true).PreviousNext(true).Refresh(true))
-            .Navigatable().Sortable().Events(ev => ev.Change("onChange"))
+            .Navigatable().Sortable().Events(ev => ev.Change("onChange").BeforeEdit("onEdit"))
             .DataSource(dataSource => dataSource.Ajax().Batch(true).PageSize(20).ServerOperation(false)
             .Events(events => events.Error("error_handler"))
             .Model(model =>
@@ -80,7 +81,7 @@
 
     function manageRoles(e) {
         var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
-        window.location = "@Url.Action("RoleMembership")/" + dataItem.UserId;
+        window.location = "@Url.Action("UserRoles")/" + dataItem.UserId;
     }
 
     function resendEmail(e) {
@@ -113,7 +114,7 @@
         }
     }
 
-    function onChange(arg) {
+    function onChange(e) {
         var selectedIds = this.selectedKeyNames();
         $("#ids").val(selectedIds);
         if (selectedIds.length > 0) {
@@ -121,6 +122,10 @@
         } else {
             $("#btnAddRemoveRoles").hide();
         }
+    }
+
+    function onEdit(e) {
+        $("#spanChangeNotice").show();
     }
 
     $(document).ready(function() {

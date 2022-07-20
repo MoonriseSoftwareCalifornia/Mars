@@ -1,48 +1,43 @@
 ﻿@model string[]
 @using Microsoft.AspNetCore.Identity
 @{
-    ViewData["Title"] = "Roles";
+    ViewData["Title"] = "Role Management";
 }
 <div class="container mt-5 pt-2">
-    <div class="row">
-        <div class="col">
+    <div class="row justify-content-center">
+        <div class="col-8">
             <h3>@ViewData["Title"]</h3>
             <hr />
-            <p>
-                Below is a list of roles bin
-            </p>
         </div>
     </div>
     @if (Model != null && Model.Any())
     {
-        <div class="row">
-            <div class="col">
+        <div class="row justify-content-center">
+            <div class="col-8">
                 <p>@Model.Count() users selected.</p>
                 <a id="btnAddToRoles" class="btn btn-sm btn-primary" style="display:none">Add Selected Users to Roles</a>
                 <a id="btnRemoveFromRoles" class="btn btn-sm btn-primary" style="display:none">Remove Selected Users from Roles</a>
             </div>
         </div>
     }
-    <div class="row">
-        <div class="col">
-            <a class="btn btn-sm btn-primary" asp-action="Index" asp-controller="Roles" title="Manage roles created to limit access to specific web pages here.">Publisher Roles</a>
+    <div class="row justify-content-center">
+        <div class="col-8">
+            <a class="btn btn-sm btn-primary" asp-action="Index" asp-controller="Home" >Home</a>
+            <span id="spanChangeNotice" class="text-muted" style="display:none">Remember to click &quot;Save&quot; or &quot;Cancel&quot; when done.</span>
             @(Html.Kendo().Grid<IdentityRole>().Name("grid")
             .Columns(col =>
             {
             col.Select().Width(50);
-            col.Command(command => command.Custom("Email").Click("resendEmail").IconClass("fas fa-envelope"));
-            col.Bound(b => b.Id);
+            col.Command(command => { command.Custom("Users").Click("manageUsers").IconClass("fa fa-user"); }).Width(124);
+            col.Bound(b => b.Id).Hidden(true);
             col.Bound(b => b.Name);
-            col.Command(command => {
-                command.Custom("Users").Click("manageUsers").IconClass("fa fa-user");
-                command.Destroy().Text("Delete"); });
+            col.Command(command => { command.Destroy().Text("Delete"); }).Width(124);
             })
             .ToolBar(toolbar => { toolbar.Create(); toolbar.Save(); toolbar.Search(); })
             .Search(t => t.Field("Name"))
             .Editable(editable => editable.Mode(GridEditMode.InCell).DisplayDeleteConfirmation(true).ConfirmDelete("Warning:Deletes are permanent!"))
             .Pageable(pager => pager.Input(true).Numeric(true).Info(true).PreviousNext(true).Refresh(true))
-            .Navigatable()
-            .Sortable()
+            .Navigatable().Sortable().Events(ev => ev.Change("onChange").BeforeEdit("onEdit"))
             .DataSource(dataSource => dataSource
             .Ajax()
             .Batch(true)
@@ -79,6 +74,10 @@
             alert(message);
         }
     }
+    
+    function onEdit(e) {
+        $("#spanChangeNotice").show();
+    }
 
     function onChange(arg) {
         selectedIds = this.selectedKeyNames(); //.join(", ");
@@ -92,6 +91,7 @@
     }
 
     function manageUsers(e) {
-
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        window.location = "@Url.Action("UsersInRole")/" + dataItem.Id;
     }
 </script>

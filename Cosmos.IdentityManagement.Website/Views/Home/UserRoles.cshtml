@@ -1,0 +1,52 @@
+﻿@model UserRoleAssignmentsViewModel
+@{
+    ViewData["Title"] = "Role Assignments";
+}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h1>@ViewData["Title"]</h1>
+    </div>
+</div>
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <form id="registerForm" method="post">
+            <h2>Selected User</h2>
+            <a asp-action="Index">Back to list <i class="fas fa-angle-double-right"></i></a>
+            <hr />
+            <div asp-validation-summary="All" class="text-danger"></div>
+            @Html.HiddenFor(m => m.Id)
+            @Html.AntiForgeryToken()
+            <div class="mb-3">
+                <label asp-for="Email"></label>
+                <input asp-for="Email" class="form-control" aria-required="true" readonly />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3" id="pwdField">
+                <label asp-for="IdentityRoles"></label>
+                @(Html.Kendo().MultiSelectFor(m => m.RoleIds)
+                .DataTextField("Name")
+                .DataValueField("Id")
+                .Placeholder("Select products...")
+                .AutoBind(false)
+                .Value(Model.IdentityRoles.Select(s => new { Id = s.Id, Name = s.Name }))
+                .DataSource(source =>
+                {
+                source.Read(read =>
+                {
+                read.Action("GetRoles", "Home");
+                })
+                .ServerFiltering(true);
+                })
+                )
+                <span asp-validation-for="IdentityRoles" class="text-danger"></span>
+            </div>
+
+            <button id="saveAssignments" type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

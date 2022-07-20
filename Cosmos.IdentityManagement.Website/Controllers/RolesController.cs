@@ -1,4 +1,5 @@
 ﻿using AspNetCore.Identity.Services.SendGrid;
+using Cosmos.IdentityManagement.Website.Models;
 using Kendo.Mvc.Extensions;
 using Kendo.Mvc.UI;
 using Microsoft.AspNetCore.Authorization;
@@ -136,5 +137,118 @@ namespace Cosmos.IdentityManagement.Website.Controllers
 
             return Json(await roles.ToDataSourceResultAsync(request, ModelState));
         }
+
+        public async Task<IActionResult> GetUsers(string text)
+        {
+            var query = _userManager.Users.OrderBy(o => o.Email)
+                .Select(
+                  s => new
+                  {
+                      s.Id,
+                      s.Email
+                  }
+                ).AsQueryable();
+
+            if (!string.IsNullOrEmpty(text))
+            {
+                query = query.Where(s => s.Email.ToLower().StartsWith(text.ToLower()));
+            }
+
+            var users = await query.ToListAsync();
+
+            return Json(users);
+        }
+
+        /// <summary>
+        /// Page designed to add/remove users from a single role.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> UsersInRole(string id)
+        {
+            var role = await _roleManager.FindByIdAsync(id);
+            if (role == null) return NotFound();
+
+            var model = new UsersInRoleViewModel()
+            {
+                RoleId = role.Id,
+                RoleName = role.Name
+            };
+            return View(model);
+        }
+
+        /// <summary>
+        /// Saves changes to the user assignments in a role
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UsersInRole(UsersInRoleViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                foreach(var id in model.UserIds)
+                {
+                    var user = await _userManager.FindByIdAsync(id);
+                    await _userManager.AddToRoleAsync(user, model.RoleName);
+                }
+
+                model.UserIds = null;
+
+                return View(model);
+            }
+
+            // Not valid, return the selected users.
+            model.Users = await _userManager.Users.Where(w => model.UserIds.Contains(w.Id))
+                .Select(
+                s => new SelectedUserViewModel()
+                {
+                    Id = s.Id,
+                    Email =s.Email
+                }
+                ).ToListAsync();
+
+            return View(model);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="users"></param>
+        /// <param name="Id">Role Id</param>
+        /// <returns></returns>
+        public async Task<IActionResult> BulkDelete_Users([DataSourceRequest] DataSourceRequest request,
+            [Bind(Prefix = "models")] IEnumerable<UserIndexViewModel> users, string Id)
+        {
+            if (string.IsNullOrEmpty(Id))
+            {
+                return NotFound();
+            }
+
+            if (users != null && ModelState.IsValid)
+            {
+                var role = await _roleManager.FindByIdAsync(Id);
+
+                foreach (var user in users)
+                {
+                    // Make sure there is at least one administrator remaining
+                    var administrators = await _userManager.GetUsersInRoleAsync("User Administrators");
+
+                    if (administrators.Count() > 1)
+                    {
+                        var userId = user.UserId;
+
+                        var identityUser = await _userManager.FindByIdAsync(userId);
+
+                        await _userManager.RemoveFromRoleAsync(identityUser, role.Name);
+                    }
+                }
+            }
+
+            return Json(await users.ToDataSourceResultAsync(request, ModelState));
+        }
+
     }
 }
