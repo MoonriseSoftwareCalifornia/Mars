@@ -39,6 +39,6 @@ jobs:
               password: ${{ secrets.DOCKERPASSWORD }}
               
     - name: Build Mars Docker image
-      run: docker build . --file /home/runner/work/Cosmos.IdentityManagement.Website/Cosmos.IdentityManagement.Website/Cosmos.IdentityManagement.Website/Dockerfile --tag toiyabe/mars:${TAGNAME}
+      run: docker build . --file /home/runner/work/Mars/Mars/Cosmos.IdentityManagement.Website/Dockerfile --tag toiyabe/mars:${TAGNAME}
     - name: Docker push Mars image
       run:  docker push toiyabe/mars:${TAGNAME}
