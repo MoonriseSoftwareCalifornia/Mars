@@ -7,6 +7,7 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
+COPY ["nuget.config", "."]
 COPY ["Cosmos.IdentityManagement.Website/Cosmos.IdentityManagement.Website.csproj", "Cosmos.IdentityManagement.Website/"]
 RUN dotnet restore "Cosmos.IdentityManagement.Website/Cosmos.IdentityManagement.Website.csproj"
 COPY . .
