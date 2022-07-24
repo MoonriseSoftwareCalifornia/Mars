@@ -23,20 +23,24 @@ namespace Cosmos.IdentityManagement.Website.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SendGridEmailSender _emailSender;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="logger"></param>
+        /// <param name="userManager"></param>
+        /// <param name="roleManager"></param>
+        /// <param name="emailSender"></param>
         public HomeController(
             ILogger<HomeController> logger,
             UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager,
             RoleManager<IdentityRole> roleManager,
             IEmailSender emailSender)
         {
             _logger = logger;
             _userManager = userManager;
-            _signInManager = signInManager;
             _roleManager = roleManager;
             _emailSender = (SendGridEmailSender)emailSender;
         }
@@ -50,11 +54,22 @@ namespace Cosmos.IdentityManagement.Website.Controllers
             return View();
         }
 
+        /// <summary>
+        /// Create a user
+        /// </summary>
+        /// <returns></returns>
         public IActionResult Create()
         {
             return View(new UserCreateViewModel());
         }
 
+        #region CREATE USER METHODS
+
+        /// <summary>
+        /// Create a user
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(UserCreateViewModel model)
@@ -89,6 +104,8 @@ namespace Cosmos.IdentityManagement.Website.Controllers
 
             return View(model);
         }
+
+        #endregion
 
         /// <summary>
         /// Creates a single user account
@@ -201,27 +218,15 @@ namespace Cosmos.IdentityManagement.Website.Controllers
             return null;
         }
 
+        #region INDEX VIEW GRID METHODS
+
         /// <summary>
-        ///     Gets the role membership for a user by id
+        /// Create users
         /// </summary>
-        /// <param name="id">User ID</param>
+        /// <param name="request"></param>
+        /// <param name="models"></param>
         /// <returns></returns>
-        public async Task<IActionResult> RoleMembership([Bind("id")] string id)
-        {
-            var user = await _userManager.FindByIdAsync(id);
-
-            if (user == null)
-                return NotFound();
-
-            ViewData["saved"] = null;
-
-            var roleList = (await _userManager.GetRolesAsync(await _userManager.FindByIdAsync(id))).ToList();
-
-
-            return View();
-        }
-
-        public async Task<IActionResult> BulkCreate_Users([DataSourceRequest] DataSourceRequest request, [Bind(Prefix = "models")] IEnumerable<UserIndexViewModel> models)
+        public async Task<IActionResult> Create_Users([DataSourceRequest] DataSourceRequest request, [Bind(Prefix = "models")] IEnumerable<UserIndexViewModel> models)
         {
             var results = new List<UserIndexViewModel>();
 
@@ -242,7 +247,13 @@ namespace Cosmos.IdentityManagement.Website.Controllers
             return Json(results.ToDataSourceResult(request, ModelState));
         }
 
-        public async Task<IActionResult> BulkDelete_Users([DataSourceRequest] DataSourceRequest request,
+        /// <summary>
+        /// Updates users
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="users"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> Delete_Users([DataSourceRequest] DataSourceRequest request,
             [Bind(Prefix = "models")] IEnumerable<UserIndexViewModel> users)
         {
             if (_userManager.Users.Count() < 2)
@@ -270,66 +281,6 @@ namespace Cosmos.IdentityManagement.Website.Controllers
             }
 
             return Json(await users.ToDataSourceResultAsync(request, ModelState));
-        }
-
-        /// <summary>
-        /// Updates email confirmed or phone number confirmed for a set of users
-        /// </summary>
-        /// <param name="request"></param>
-        /// <param name="users"></param>
-        /// <returns></returns>
-        [HttpPost]
-        public async Task<IActionResult> BulkUpdate_Users([DataSourceRequest] DataSourceRequest request,
-            [Bind(Prefix = "models")] IEnumerable<UserIndexViewModel> users)
-        {
-            if (users != null && ModelState.IsValid)
-            {
-                foreach (var user in users)
-                {
-                    var identityUser = await _userManager.FindByIdAsync(user.UserId);
-
-                    identityUser.UserName = user.EmailAddress;
-                    identityUser.NormalizedUserName = user.EmailAddress.ToUpperInvariant();
-                    identityUser.Email = user.EmailAddress;
-                    identityUser.NormalizedEmail = user.EmailAddress.ToUpperInvariant();
-                    identityUser.EmailConfirmed = user.EmailConfirmed;
-                    identityUser.PhoneNumberConfirmed = user.PhoneNumberConfirmed;
-
-                    var result = await _userManager.UpdateAsync(identityUser);
-
-                    if (!result.Succeeded)
-                    {
-                        foreach (var error in result.Errors)
-                        {
-                            ModelState.AddModelError("", $"Error code: {error.Code} Error message: {error.Description}.");
-                        }
-                    }
-                }
-            }
-
-            return Json(await users.ToDataSourceResultAsync(request, ModelState));
-        }
-
-        /// <summary>
-        /// Gets a total list of roles
-        /// </summary>
-        /// <returns></returns>
-        public async Task<IActionResult> GetRoles(string text)
-        {
-            var query = _roleManager.Roles.OrderBy(o => o.Name).Select(s => new
-            {
-                s.Id,
-                s.Name
-            }).AsQueryable();
-
-            if (!string.IsNullOrEmpty(text))
-            {
-                query = query.Where(s => s.Name.ToLower().StartsWith(text.ToLower()));
-            }
-
-            var roles = await query.ToListAsync();
-            
-            return Json(roles);
         }
 
         /// <summary>
@@ -382,6 +333,111 @@ namespace Cosmos.IdentityManagement.Website.Controllers
         }
 
         /// <summary>
+        /// Updates email confirmed or phone number confirmed for a set of users
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="users"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> Update_Users([DataSourceRequest] DataSourceRequest request,
+            [Bind(Prefix = "models")] IEnumerable<UserIndexViewModel> users)
+        {
+            if (users != null && ModelState.IsValid)
+            {
+                foreach (var user in users)
+                {
+                    var identityUser = await _userManager.FindByIdAsync(user.UserId);
+
+                    identityUser.UserName = user.EmailAddress;
+                    identityUser.NormalizedUserName = user.EmailAddress.ToUpperInvariant();
+                    identityUser.Email = user.EmailAddress;
+                    identityUser.NormalizedEmail = user.EmailAddress.ToUpperInvariant();
+                    identityUser.EmailConfirmed = user.EmailConfirmed;
+                    identityUser.PhoneNumberConfirmed = user.PhoneNumberConfirmed;
+
+                    var result = await _userManager.UpdateAsync(identityUser);
+
+                    if (!result.Succeeded)
+                    {
+                        foreach (var error in result.Errors)
+                        {
+                            ModelState.AddModelError("", $"Error code: {error.Code} Error message: {error.Description}.");
+                        }
+                    }
+                }
+            }
+
+            return Json(await users.ToDataSourceResultAsync(request, ModelState));
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Gets the role assignments for a user
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        private async Task<UserRoleAssignmentsViewModel> GetRoleAssignmentsForUser(string id)
+        {
+            var roles = new List<IdentityRole>();
+            var user = await _userManager.FindByIdAsync(id);
+            var roleNames = await _userManager.GetRolesAsync(user);
+            foreach (var name in roleNames)
+            {
+                roles.Add(await _roleManager.FindByNameAsync(name));
+            }
+
+            return new UserRoleAssignmentsViewModel()
+            {
+                Id = user.Id,
+                Email = user.Email,
+                IdentityRoles = roles
+            };
+        }
+
+        /// <summary>
+        /// Gets a total list of roles
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IActionResult> GetRoles(string text)
+        {
+            var query = _roleManager.Roles.OrderBy(o => o.Name).Select(s => new
+            {
+                s.Id,
+                s.Name
+            }).AsQueryable();
+
+            if (!string.IsNullOrEmpty(text))
+            {
+                query = query.Where(s => s.Name.ToLower().StartsWith(text.ToLower()));
+            }
+
+            var roles = await query.ToListAsync();
+            
+            return Json(roles);
+        }
+
+        /// <summary>
+        ///     Gets the role membership for a user by id
+        /// </summary>
+        /// <param name="id">User ID</param>
+        /// <returns></returns>
+        public async Task<IActionResult> RoleMembership([Bind("id")] string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+
+            if (user == null)
+                return NotFound();
+
+            ViewData["saved"] = null;
+
+            var roleList = (await _userManager.GetRolesAsync(await _userManager.FindByIdAsync(id))).ToList();
+
+
+            return View();
+        }
+
+        /// <summary>
         /// Resends a user's email confirmation.
         /// </summary>
         /// <param name="Id"></param>
@@ -431,29 +487,6 @@ namespace Cosmos.IdentityManagement.Website.Controllers
             }
 
             return Json(result);
-        }
-
-        /// <summary>
-        /// Gets the role assignments for a user
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        private async Task<UserRoleAssignmentsViewModel> GetRoleAssignmentsForUser(string id)
-        {
-            var roles = new List<IdentityRole>();
-            var user = await _userManager.FindByIdAsync(id);
-            var roleNames = await _userManager.GetRolesAsync(user);
-            foreach (var name in roleNames)
-            {
-                roles.Add(await _roleManager.FindByNameAsync(name));
-            }
-
-            return new UserRoleAssignmentsViewModel()
-            {
-                Id = user.Id,
-                Email = user.Email,
-                IdentityRoles = roles
-            };
         }
 
         /// <summary>

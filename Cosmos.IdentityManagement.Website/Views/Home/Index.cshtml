@@ -1,20 +1,16 @@
 ﻿@{
-    ViewData["Title"] = "MARS";
+    ViewData["Title"] = "User Management";
 }
 <style>
     .fa-shield {
         padding-right: 4px;
     }
 </style>
-<div class="container mt-5 pt-2">
+<div class="container">
     <div class="row">
         <div class="col">
             <h3>@ViewData["Title"]</h3>
-            <span class="text-muted">Managed Account Resources System</span>
             <hr />
-            <p>
-                MARS is a user accounts and role assignments management system for ASP.NET.
-            </p>
             <div asp-validation-summary="All" class="text-danger"></div>
         </div>
     </div>
@@ -23,7 +19,7 @@
             <a class="btn btn-sm btn-primary" asp-action="Create" title="Create a user account here.">Create Single User</a>
             <a class="btn btn-sm btn-primary" asp-action="Index" asp-controller="Roles" title="Manage roles created to limit access to specific web pages here.">Manage Roles</a>
             <a id="btnAddRemoveRoles" class="btn btn-sm btn-primary" style="display:none">Add/Remove Users from Roles</a>
-            <span id="spanChangeNotice" class="text-muted" style="display:none">Remember to click &quot;Save&quot; or &quot;Cancel&quot; when done.</span>
+            <span id="spanChangeNotice" style="display:none;color: #e6ccff">Remember to click &quot;Save&quot; or &quot;Cancel&quot; when done.</span>
             @(Html.Kendo().Grid<UserIndexViewModel>
             ().Name("grid")
             .Columns(col =>
@@ -63,10 +59,10 @@
             model.Field(f => f.EmailConfirmed).Editable(true);
             model.Field(f => f.PhoneNumberConfirmed).Editable(true);
             })
-            .Create("BulkCreate_Users", "Home")
+            .Create("Create_Users", "Home")
+            .Destroy("Delete_Users", "Home")
             .Read("Read_Users", "Home")
-            .Update("BulkUpdate_Users", "Home")
-            .Destroy("BulkDelete_Users", "Home")
+            .Update("Update_Users", "Home")
             )
             )
         </div>

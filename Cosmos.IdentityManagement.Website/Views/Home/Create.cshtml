@@ -16,7 +16,7 @@
             <div asp-validation-summary="All" class="text-danger"></div>
             <div class="mb-3">
                 <label asp-for="EmailAddress"></label>
-                <input asp-for="EmailAddress" class="form-control" aria-required="true" />
+                @Html.Kendo().TextBoxFor(m => m.EmailAddress)
                 <span asp-validation-for="EmailAddress" class="text-danger"></span>
             </div>
 
@@ -28,10 +28,9 @@
 
             <div class="mb-3">
                 <label asp-for="PhoneNumber"></label>
-                <input asp-for="PhoneNumber" class="form-control" aria-required="true" />
+                @Html.Kendo().TextBoxFor(m => m.PhoneNumber)
                 <span asp-validation-for="PhoneNumber" class="text-danger"></span>
             </div>
-
             <div class="mb-3 form-check">
                 <input asp-for="PhoneNumberConfirmed" type="checkbox" class="form-check-input" aria-required="true" />
                 <label asp-for="PhoneNumberConfirmed" class="form-check-label"></label>
@@ -46,7 +45,7 @@
 
             <div class="mb-3" id="pwdField" style="display:none;">
                 <label asp-for="Password"></label>
-                <input asp-for="Password" class="form-control" autocomplete="new-password" aria-required="true" />
+                @Html.Kendo().TextBoxFor(m => m.Password)
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
 

@@ -8,14 +8,19 @@
         padding-right: 4px;
     }
 </style>
-<div class="container mt-5 pt-2">
+<div class="container pt-2">
     <div class="row justify-content-center">
         <div class="col-8">
-            <p>Managing users for role:</p>
-            <h3>@ViewData["Title"]</h3>
-            <a asp-action="Index">Roles <i class="fas fa-angle-double-right"></i></a>
+            <h3>Role: @ViewData["Title"]</h3> 
             <hr />
-            <div class="card">
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-8">
+
+            <a class="float-end" asp-action="Index">Back to roles &nbsp;<i class="fas fa-angle-double-right"></i></a>
+            <br />
+            <div class="card bg-dark">
                 <div class="card-body">
                     <form id="addUsersForm" method="post">
                         <div asp-validation-summary="All" class="text-danger"></div>
@@ -66,6 +71,7 @@
             })
             .PersistSelection()
             .Search(t => t.Field("EmailAddress"))
+            .ToolBar(toolbar => { toolbar.Save(); })
             .Editable(editable => editable.DisplayDeleteConfirmation(true).ConfirmDelete("Warning:This may affect access for this user."))
             .Pageable(pager => pager.Input(true).Numeric(true).Info(true).PreviousNext(true).Refresh(true))
             .Navigatable().Sortable().Events(ev => ev.BeforeEdit("onEdit"))
@@ -81,9 +87,10 @@
             model.Field(f => f.PhoneNumberConfirmed).Editable(true);
             })
             .Read("Read_Users", "Home", new { Id = Model.RoleId })
-            .Destroy("BulkDelete_Users", "Role", new { Id = Model.RoleId })
+            .Destroy("Delete_Users", "Roles", new { Id = Model.RoleId })
             )
             )
+            <a class="float-end" asp-action="Index">Back to roles &nbsp;<i class="fas fa-angle-double-right"></i></a>
         </div>
     </div>
 </div>

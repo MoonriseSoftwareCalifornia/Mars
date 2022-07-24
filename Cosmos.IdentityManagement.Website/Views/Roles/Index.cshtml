@@ -3,7 +3,7 @@
 @{
     ViewData["Title"] = "Role Management";
 }
-<div class="container mt-5 pt-2">
+<div class="container">
     <div class="row justify-content-center">
         <div class="col-8">
             <h3>@ViewData["Title"]</h3>
@@ -15,7 +15,7 @@
         <div class="row justify-content-center">
             <div class="col-8">
                 <p>@Model.Count() users selected.</p>
-                <a id="btnAddToRoles" class="btn btn-sm btn-primary" style="display:none">Add Selected Users to Roles</a>
+                <a id="btnAddToRoles" class="btn btn-sm btn-primary" style="display:none;color: #e6ccff">Add Selected Users to Roles</a>
                 <a id="btnRemoveFromRoles" class="btn btn-sm btn-primary" style="display:none">Remove Selected Users from Roles</a>
             </div>
         </div>

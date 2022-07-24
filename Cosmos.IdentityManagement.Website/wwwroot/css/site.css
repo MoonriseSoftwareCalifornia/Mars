@@ -1,18 +1,33 @@
 html {
-  font-size: 14px;
+    font-size: 14px;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    html {
+        font-size: 16px;
+    }
 }
 
 html {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100%;
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
+}
+
+.btn-primary {
+    border-color: #b32d00;
+    background-color: #b32d00;
+}
+
+    .btn-primary:hover {
+        border-color: #b32d00;
+        background-color: #f2d410;
+        color: #000000;
+    }
+
+a {
+    color: #ffc107;
 }

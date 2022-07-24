@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AspNetCore.Identity.CosmosDb" Version="2.0.10" />
+    <PackageReference Include="AspNetCore.Identity.CosmosDb" Version="2.0.11" />
     <PackageReference Include="AspNetCore.Identity.Services.SendGrid" Version="2.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.7" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.7" />

@@ -42,7 +42,7 @@ namespace Cosmos.IdentityManagement.Website.Controllers
             return View(model);
         }
 
-        public async Task<IActionResult> BulkCreate_Roles([DataSourceRequest] DataSourceRequest request, [Bind(Prefix = "models")] IEnumerable<IdentityRole> models)
+        public async Task<IActionResult> Create_Roles([DataSourceRequest] DataSourceRequest request, [Bind(Prefix = "models")] IEnumerable<IdentityRole> models)
         {
             var results = new List<IdentityRole>();
 
@@ -92,7 +92,7 @@ namespace Cosmos.IdentityManagement.Website.Controllers
         /// <param name="users"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<ActionResult> BulkUpdate_Roles([DataSourceRequest] DataSourceRequest request,
+        public async Task<ActionResult> Update_Roles([DataSourceRequest] DataSourceRequest request,
             [Bind(Prefix = "models")] IEnumerable<IdentityRole> roles)
         {
             if (roles != null && ModelState.IsValid)
@@ -116,7 +116,7 @@ namespace Cosmos.IdentityManagement.Website.Controllers
         /// <param name="users"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<ActionResult> BulkDelete_Roles([DataSourceRequest] DataSourceRequest request,
+        public async Task<ActionResult> Delete_Roles([DataSourceRequest] DataSourceRequest request,
             [Bind(Prefix = "models")] IEnumerable<IdentityRole> roles)
         {
 
@@ -188,7 +188,7 @@ namespace Cosmos.IdentityManagement.Website.Controllers
         {
             if (ModelState.IsValid)
             {
-                foreach(var id in model.UserIds)
+                foreach (var id in model.UserIds)
                 {
                     var user = await _userManager.FindByIdAsync(id);
                     await _userManager.AddToRoleAsync(user, model.RoleName);
@@ -205,7 +205,7 @@ namespace Cosmos.IdentityManagement.Website.Controllers
                 s => new SelectedUserViewModel()
                 {
                     Id = s.Id,
-                    Email =s.Email
+                    Email = s.Email
                 }
                 ).ToListAsync();
 
@@ -219,7 +219,7 @@ namespace Cosmos.IdentityManagement.Website.Controllers
         /// <param name="users"></param>
         /// <param name="Id">Role Id</param>
         /// <returns></returns>
-        public async Task<IActionResult> BulkDelete_Users([DataSourceRequest] DataSourceRequest request,
+        public async Task<IActionResult> Delete_Users([DataSourceRequest] DataSourceRequest request,
             [Bind(Prefix = "models")] IEnumerable<UserIndexViewModel> users, string Id)
         {
             if (string.IsNullOrEmpty(Id))
@@ -233,16 +233,22 @@ namespace Cosmos.IdentityManagement.Website.Controllers
 
                 foreach (var user in users)
                 {
+                    var identityUser = await _userManager.FindByIdAsync(user.UserId);
+
                     // Make sure there is at least one administrator remaining
-                    var administrators = await _userManager.GetUsersInRoleAsync("User Administrators");
-
-                    if (administrators.Count() > 1)
+                    if (role.Name.Equals("User Administrators", StringComparison.InvariantCultureIgnoreCase))
                     {
-                        var userId = user.UserId;
+                        var administrators = await _userManager.GetUsersInRoleAsync("User Administrators");
 
-                        var identityUser = await _userManager.FindByIdAsync(userId);
-
-                        await _userManager.RemoveFromRoleAsync(identityUser, role.Name);
+                        if (administrators.Count() > 0)
+                        {
+                            await _userManager.RemoveFromRoleAsync(identityUser, role.Name);
+                        }
+                    }
+                    else
+                    {
+                        var result = await _userManager.RemoveFromRoleAsync(identityUser, role.Name);
+                        var t = result;
                     }
                 }
             }
