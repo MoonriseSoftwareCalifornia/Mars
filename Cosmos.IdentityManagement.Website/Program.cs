@@ -54,6 +54,14 @@ var sendGridApiKey = builder.Configuration.GetValue<string>("SendGridApiKey");
 // Modify 'from' email address to your own.
 var sendGridOptions = new SendGridEmailProviderOptions(sendGridApiKey, "eric@moonrise.net");
 
+// Sandbox mode?
+var sendGridSandbox = builder.Configuration.GetValue<string>("SendGridSandbox");
+if (!string.IsNullOrEmpty(sendGridSandbox) && bool.TryParse(sendGridSandbox, out var sandBoxMode))
+{
+    sendGridOptions.SandboxMode = sandBoxMode;
+}
+
+
 // Add SendGrid IEmail sender
 builder.Services.AddSendGridEmailProvider(sendGridOptions);
 

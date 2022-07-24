@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -6,11 +6,26 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>aspnet-Cosmos.IdentityManagement.Website-D2781776-12A5-45EE-BAAD-A8821A5CBEB7</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <Authors>toiyabe62</Authors>
+    <Company>Moonrise Software LLC</Company>
+    <Product>MARS</Product>
+    <Description>Managed Account Resource Manager for ASP.NET Identity.</Description>
+    <Copyright>Moonrise Software LLC</Copyright>
+    <PackageProjectUrl>https://github.com/CosmosSoftware/AspNetCore.Identity.Services.SendGrid</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/CosmosSoftware/AspNetCore.Identity.Services.SendGrid</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="..\..\CosmosSoftware\AspNetCore.Identity.Services.SendGrid\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AspNetCore.Identity.CosmosDb" Version="2.0.11" />
-    <PackageReference Include="AspNetCore.Identity.Services.SendGrid" Version="2.0.5" />
+    <PackageReference Include="AspNetCore.Identity.Services.SendGrid" Version="2.0.6" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.7" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.7" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.7" />
