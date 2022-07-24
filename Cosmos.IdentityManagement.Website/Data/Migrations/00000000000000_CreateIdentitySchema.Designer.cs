@@ -9,7 +9,7 @@ using System;
 
 namespace Cosmos.IdentityManagement.Website.Data.Migrations
 {
-    [DbContext(typeof(ApplicationDbContext))]
+    [DbContext(typeof(CosmosDbContext))]
     [Migration("00000000000000_CreateIdentitySchema")]
     partial class CreateIdentitySchema
     {

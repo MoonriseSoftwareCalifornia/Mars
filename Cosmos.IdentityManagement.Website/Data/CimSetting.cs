@@ -11,6 +11,7 @@ namespace Cosmos.IdentityManagement.Website.Data
         public Guid Id { get; set; } = Guid.NewGuid();
 
         [Required]
+        [MaxLength(64)]
         [Display(Name = "Key Name")]
         public string KeyName { get; set; }
 

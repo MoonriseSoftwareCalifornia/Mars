@@ -16,36 +16,71 @@ var cosmosIdentityDbName = builder.Configuration.GetValue<string>("CosmosIdentit
 // 1. Create the database if it does not already exist.
 // 2. Create the required containers if they do not already exist.
 // IMPORTANT: Remove this setting if after first run. It will improve startup performance.
-var setupCosmosDb = builder.Configuration.GetValue<string>("SetupDb");
+var setupDb = builder.Configuration.GetValue<string>("SetupDb");
 
 // Supported values "Cosmos" or "mssql";
 var dbProvider = builder.Configuration.GetValue<string>("DbProvider");
 
-// If the following is set, it will create the Cosmos database and
-//  required containers.
-if (bool.TryParse(setupCosmosDb, out var setup) && setup)
+if (!string.IsNullOrEmpty(dbProvider) && dbProvider.Equals("mssql", StringComparison.InvariantCultureIgnoreCase))
 {
-    var builder1 = new DbContextOptionsBuilder<ApplicationDbContext>();
-        builder1.UseCosmos(connectionString, cosmosIdentityDbName);
-
-    using (var dbContext = new ApplicationDbContext(builder1.Options))
+    // Use SQL Server database
+    // If the following is set, it will create the Cosmos database and
+    //  required containers.
+    if (bool.TryParse(setupDb, out var setup) && setup)
     {
-        dbContext.Database.EnsureCreated();
+        var builder1 = new DbContextOptionsBuilder<CosmosDbContext>();
+        builder1.UseSqlServer(connectionString: connectionString);
+
+        using (var dbContext = new CosmosDbContext(builder1.Options))
+        {
+            dbContext.Database.Migrate();
+        }
+
+        _ = builder.Services.AddDbContext<MsSqlDbContext>(options =>
+            options.UseSqlServer(connectionString: connectionString));
+
+        builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+        builder.Services.AddDefaultIdentity<IdentityUser>(
+              options =>
+              {
+                  options.SignIn.RequireConfirmedAccount = true;
+              } // Always a good idea :)
+            )
+            .AddRoles<IdentityRole>()
+            .AddEntityFrameworkStores<MsSqlDbContext>();
     }
 }
+else
+{
+    // Use Cosmos database
+    // If the following is set, it will create the Cosmos database and
+    //  required containers.
+    if (bool.TryParse(setupDb, out var setup) && setup)
+    {
+        var builder1 = new DbContextOptionsBuilder<CosmosDbContext>();
+        builder1.UseCosmos(connectionString, cosmosIdentityDbName);
 
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseCosmos(connectionString: connectionString, databaseName: cosmosIdentityDbName));
+        using (var dbContext = new CosmosDbContext(builder1.Options))
+        {
+            dbContext.Database.EnsureCreated();
+        }
+    }
 
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+    builder.Services.AddDbContext<CosmosDbContext>(options =>
+        options.UseCosmos(connectionString: connectionString, databaseName: cosmosIdentityDbName));
 
-builder.Services.AddCosmosIdentity<ApplicationDbContext, IdentityUser, IdentityRole>(
-      options => {
-          options.SignIn.RequireConfirmedAccount = true;
-      } // Always a good idea :)
-    )
-    .AddDefaultUI()
-    .AddDefaultTokenProviders();
+    builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+    builder.Services.AddCosmosIdentity<CosmosDbContext, IdentityUser, IdentityRole>(
+          options =>
+          {
+              options.SignIn.RequireConfirmedAccount = true;
+          } // Always a good idea :)
+        )
+        .AddDefaultUI()
+        .AddDefaultTokenProviders();
+}
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();

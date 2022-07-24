@@ -8,7 +8,7 @@ using System;
 
 namespace Cosmos.IdentityManagement.Website.Data.Migrations
 {
-    [DbContext(typeof(ApplicationDbContext))]
+    [DbContext(typeof(CosmosDbContext))]
     partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
@@ -269,6 +269,24 @@ namespace Cosmos.IdentityManagement.Website.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
+
+            modelBuilder.Entity<CimSetting>(b =>
+                    {
+                        b.Property<string>("Id").HasColumnType("nvarchar(450)");
+
+                        b.Property<string>("KeyName")
+                            .HasColumnType("nvarchar(64)")
+                            .HasMaxLength(64);
+
+                        b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
+
+                        b.HasKey("Id");
+
+                        b.ToTable("CimSetting");
+                    }
+            );
+
 #pragma warning restore 612, 618
         }
     }

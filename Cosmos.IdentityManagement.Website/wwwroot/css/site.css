@@ -31,3 +31,21 @@ body {
 a {
     color: #ffc107;
 }
+
+input {
+    background-color: rgb(255, 255, 255) !important;
+    background-image: none !important;
+    color: rgb(0, 0, 0) !important;
+}
+
+    input:-internal-autofill-selected {
+        background-color: red !important;
+        background-image: none !important;
+        color: black !important;
+    }
+
+.form-control.valid {
+    background-color: red !important;
+    background-image: none !important;
+    color: black !important;
+}

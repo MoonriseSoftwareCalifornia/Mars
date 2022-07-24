@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Cosmos.IdentityManagement.Website.Data
 {
-    public class ApplicationDbContext : CosmosIdentityDbContext<IdentityUser, IdentityRole>
+    public class CosmosDbContext : CosmosIdentityDbContext<IdentityUser, IdentityRole>
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        public CosmosDbContext(DbContextOptions<CosmosDbContext> options)
             : base(options)
         {
         }
