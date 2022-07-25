@@ -9,7 +9,7 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 COPY ["nuget.config", "."]
 COPY ["Cosmos.IdentityManagement.Website/Cosmos.IdentityManagement.Website.csproj", "Cosmos.IdentityManagement.Website/"]
-RUN dotnet restore "Cosmos.IdentityManagement.Website/Cosmos.IdentityManagement.Website.csproj"
+# RUN dotnet restore "Cosmos.IdentityManagement.Website/Cosmos.IdentityManagement.Website.csproj"
 COPY . .
 WORKDIR "/src/Cosmos.IdentityManagement.Website"
 RUN dotnet build "Cosmos.IdentityManagement.Website.csproj" -c Release -o /app/build
