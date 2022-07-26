@@ -15,6 +15,8 @@ html {
 
 body {
     margin-bottom: 60px;
+    background-color: rgb(33, 32, 32);
+    color:rgb(218, 216, 216)
 }
 
 .btn-primary {

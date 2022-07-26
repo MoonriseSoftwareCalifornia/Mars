@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using Cosmos.IdentityManagement.Website.Models;
 
 namespace Cosmos.IdentityManagement.Website.Areas.Identity.Pages.Account
 {
@@ -21,11 +22,23 @@ namespace Cosmos.IdentityManagement.Website.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
+        private readonly MarsRunMode _runMode;
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public LoginModel(SignInManager<IdentityUser> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(
+            SignInManager<IdentityUser> signInManager,
+            ILogger<LoginModel> logger,
+            MarsRunMode runMode,
+            UserManager<IdentityUser> userManager,
+            RoleManager<IdentityRole> roleManager
+            )
         {
             _signInManager = signInManager;
             _logger = logger;
+            _runMode = runMode;
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
 
         /// <summary>
@@ -115,6 +128,36 @@ namespace Cosmos.IdentityManagement.Website.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
+
+                    if (_runMode.Setup)
+                    {
+                        // Check to see if we need to add a new user to the admin role
+                        var adminRole = await _roleManager.FindByNameAsync("User Administrators");
+
+                        if (adminRole == null)
+                        {
+                            await _roleManager.CreateAsync(new IdentityRole()
+                            {
+                                Id = Guid.NewGuid().ToString(),
+                                Name = "User Administrators",
+                                NormalizedName = "User Administrators".ToUpperInvariant()
+                            });
+                        }
+
+                        var users = await _userManager.GetUsersInRoleAsync("User Administrators");
+
+                        if (!users.Any())
+                        {
+                            var user = await _userManager.FindByEmailAsync(Input.Email);
+
+                            await _userManager.AddToRoleAsync(user, "User Administrators");
+
+                            _logger.LogInformation($"{user.Email} added to the 'User Administrators' role.");
+
+                            return RedirectToPage("./SettingsChanged");
+                        }
+                    }
+
                     return LocalRedirect(returnUrl);
                 }
                 if (result.RequiresTwoFactor)

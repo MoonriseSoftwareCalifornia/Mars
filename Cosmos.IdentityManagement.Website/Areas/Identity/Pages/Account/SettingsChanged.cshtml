@@ -1,0 +1,19 @@
+﻿@page
+@model SettingsChangedModel
+@{
+    ViewData["Title"] = "Settings Changed";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-8">
+            <header>
+                <h1>@ViewData["Title"]</h1>
+                <p>
+                    Your account settings have changed.  Please <a asp-area="Account" asp-page="Login">login again</a>
+                    so the new settings take affect.
+                </p>
+            </header>
+        </div>
+    </div>
+</div>

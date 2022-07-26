@@ -2,6 +2,7 @@ using AspNetCore.Identity.CosmosDb.Extensions;
 using AspNetCore.Identity.Services.SendGrid;
 using AspNetCore.Identity.Services.SendGrid.Extensions;
 using Cosmos.IdentityManagement.Website.Data;
+using Cosmos.IdentityManagement.Website.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Serialization;
@@ -15,8 +16,14 @@ var cosmosIdentityDbName = builder.Configuration.GetValue<string>("CosmosIdentit
 // If this is set, the Cosmos identity provider will:
 // 1. Create the database if it does not already exist.
 // 2. Create the required containers if they do not already exist.
+
 // IMPORTANT: Remove this setting if after first run. It will improve startup performance.
 var setupDb = builder.Configuration.GetValue<string>("SetupDb");
+
+// Sandbox mode?
+var sendGridSandbox = builder.Configuration.GetValue<string>("SendGridSandbox");
+
+var marsRunMode = new MarsRunMode(setupDb, sendGridSandbox);
 
 // Supported values "Cosmos" or "mssql";
 var dbProvider = builder.Configuration.GetValue<string>("DbProvider");
@@ -26,37 +33,42 @@ if (!string.IsNullOrEmpty(dbProvider) && dbProvider.Equals("mssql", StringCompar
     // Use SQL Server database
     // If the following is set, it will create the Cosmos database and
     //  required containers.
-    if (bool.TryParse(setupDb, out var setup) && setup)
+    if (marsRunMode.Setup)
     {
         var builder1 = new DbContextOptionsBuilder<CosmosDbContext>();
         builder1.UseSqlServer(connectionString: connectionString);
 
         using (var dbContext = new CosmosDbContext(builder1.Options))
         {
-            dbContext.Database.Migrate();
+            var pending = await dbContext.Database.GetPendingMigrationsAsync();
+
+            if (!pending.Any())
+            {
+                await dbContext.Database.MigrateAsync();
+            }
         }
-
-        _ = builder.Services.AddDbContext<MsSqlDbContext>(options =>
-            options.UseSqlServer(connectionString: connectionString));
-
-        builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-
-        builder.Services.AddDefaultIdentity<IdentityUser>(
-              options =>
-              {
-                  options.SignIn.RequireConfirmedAccount = true;
-              } // Always a good idea :)
-            )
-            .AddRoles<IdentityRole>()
-            .AddEntityFrameworkStores<MsSqlDbContext>();
     }
+
+    _ = builder.Services.AddDbContext<MsSqlDbContext>(options =>
+        options.UseSqlServer(connectionString: connectionString));
+
+    builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+    builder.Services.AddDefaultIdentity<IdentityUser>(
+          options =>
+          {
+              options.SignIn.RequireConfirmedAccount = true;
+          } // Always a good idea :)
+        )
+        .AddRoles<IdentityRole>()
+        .AddEntityFrameworkStores<MsSqlDbContext>();
 }
 else
 {
     // Use Cosmos database
     // If the following is set, it will create the Cosmos database and
     //  required containers.
-    if (bool.TryParse(setupDb, out var setup) && setup)
+    if (marsRunMode.Setup)
     {
         var builder1 = new DbContextOptionsBuilder<CosmosDbContext>();
         builder1.UseCosmos(connectionString, cosmosIdentityDbName);
@@ -89,13 +101,10 @@ var sendGridApiKey = builder.Configuration.GetValue<string>("SendGridApiKey");
 // Modify 'from' email address to your own.
 var sendGridOptions = new SendGridEmailProviderOptions(sendGridApiKey, "eric@moonrise.net");
 
-// Sandbox mode?
-var sendGridSandbox = builder.Configuration.GetValue<string>("SendGridSandbox");
-if (!string.IsNullOrEmpty(sendGridSandbox) && bool.TryParse(sendGridSandbox, out var sandBoxMode))
-{
-    sendGridOptions.SandboxMode = sandBoxMode;
-}
+sendGridOptions.SandboxMode = marsRunMode.SendGridSandboxMode;
 
+// Run mode
+builder.Services.AddSingleton(marsRunMode);
 
 // Add SendGrid IEmail sender
 builder.Services.AddSendGridEmailProvider(sendGridOptions);
