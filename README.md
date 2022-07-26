@@ -2,11 +2,13 @@
 
 Managed Account Resources System (MARS) by Moonrise Software LLC
 
+[![Docker Publish](https://github.com/CosmosSoftware/Mars/actions/workflows/docker.yml/badge.svg)](https://github.com/CosmosSoftware/Mars/actions/workflows/docker.yml)
+
 ## What is Mars?
 
 Mars is a user account and role resource management website built on the
-[ASP.NET Core Identity Framework](https://docs.microsoft.com/en-us/aspnet/core/security/authentication/identity?view=aspnetcore-6.0&tabs=visual-studio) that is and open source produce that is free to install. It works with either
-Azure Cosmos DB or Microsoft SQL Server.  Installation instructions are below.
+[ASP.NET Core Identity Framework](https://docs.microsoft.com/en-us/aspnet/core/security/authentication/identity?view=aspnetcore-6.0&tabs=visual-studio). Mars is open source and is free to install and use.  It works with either
+Azure Cosmos DB or Microsoft SQL Server.  [Docker container](https://hub.docker.com/repository/docker/toiyabe/mars) installation instructions are below.
 
 Functionality includes:
 
