@@ -1,12 +1,11 @@
 ﻿@model UserCreatedViewModel
 @{
-    ViewData["Title"] = "New Account Created";
+    ViewData["Title"] = $"Account Created for: {@Model.EmailAddress}";
 }
 <div class="row justify-content-center">
-</div>
-<div class="row justify-content-center">
     <div class="col-md-6">
-        <h4>User Account Information</h4>
+        <h4>@ViewData["Title"]</h4>
+        <p>A new account was just created with the information shown below. The password below (if shown) will only display once.</p>
         <hr />
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <div class="mb-3">
