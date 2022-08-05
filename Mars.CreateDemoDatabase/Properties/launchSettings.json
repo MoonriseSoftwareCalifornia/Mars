@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "Mars.CreateDemoDatabase": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker",
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+      "httpPort": 32541,
+      "useSSL": false
+    }
+  }
+}

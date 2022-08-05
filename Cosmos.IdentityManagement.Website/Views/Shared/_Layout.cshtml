@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@inject MarsRunMode marsRunMode
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -6,12 +7,12 @@
     <title>@ViewData["Title"] - MARS</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/Cosmos.IdentityManagement.Website.styles.css" asp-append-version="true" />
-    <link href="https://kendo.cdn.telerik.com/2022.2.621/styles/kendo.bootstrap-main.min.css" rel="stylesheet" type="text/css" /> 
-    
+    <link href="https://kendo.cdn.telerik.com/2022.2.621/styles/kendo.bootstrap-main.min.css" rel="stylesheet" type="text/css" />
+
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/Mars.css" />
     <script src="https://kit.fontawesome.com/7ba01e580f.js" crossorigin="anonymous"></script>
-   
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="https://kendo.cdn.telerik.com/2022.2.621/js/kendo.all.min.js"></script>
     <script src="https://kendo.cdn.telerik.com/2022.2.621/js/kendo.aspnetmvc.min.js"></script>
@@ -21,18 +22,21 @@
         <nav class="navbar navbar-dark text-light fixed-top navbar-expand-sm navbar-toggleable-sm mb-3" style="background-color: #000000;">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    <img
-                        src="~/img/MarsSunRiseJPLNavLogo.webp"
-                        height="30"
-                        alt="MARS Logo"
-                        loading="lazy"
-                      />
+                    <img src="~/img/MarsSunRiseJPLNavLogo.webp"
+                         height="30"
+                         alt="MARS Logo"
+                         loading="lazy" />
                     MARS <sup>(beta)</sup>
-                    </a>
+                </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+                
+                @if (marsRunMode.SendGridSandboxMode)
+                {
+                    <a href="https://www.moonrise.net/open_source/mars/sandbox_mode" target="_blank" class="btn btn-sm btn-primary">Sandbox mode on</a>
+                }
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
@@ -43,6 +47,12 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="https://www.moonrise.net/open_source/mars">Documentation</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link"  href="https://www.moonrise.net/ContactUs">Questions/Help</a>
                         </li>
                     </ul>
                     <partial name="_LoginPartial" />
@@ -59,7 +69,7 @@
 
     <footer class="footer text-muted text-center text-light" style="background-color: #000000;">
         <div class="container">
-           Managed Account Resources System (MARS) &copy; 2022 - Moonrise Software LLC - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            Managed Account Resources System (MARS) &copy; 2022 - Moonrise Software LLC - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

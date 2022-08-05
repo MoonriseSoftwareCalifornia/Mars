@@ -47,7 +47,7 @@ input {
     }
 
 .form-control.valid {
-    background-color: red !important;
+    background-color: #c9f8ce !important;
     background-image: none !important;
     color: black !important;
 }
