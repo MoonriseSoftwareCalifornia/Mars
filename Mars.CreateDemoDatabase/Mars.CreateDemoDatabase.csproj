@@ -5,9 +5,9 @@
     <DockerFastModeProjectMountDirectory>/home/site/wwwroot</DockerFastModeProjectMountDirectory>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <UserSecretsId>d93403d7-19de-417d-9ce5-15978c06ba63</UserSecretsId>
-    <Version>1.0.1.1-beta</Version>
-    <AssemblyVersion>1.0.1.1-beta</AssemblyVersion>
-    <FileVersion>1.0.1.1-beta</FileVersion>
+    <Version>1.0.2.1</Version>
+    <AssemblyVersion>1.0.2.1</AssemblyVersion>
+    <FileVersion>1.0.2.1</FileVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="AspNetCore.Identity.CosmosDb" Version="2.0.12" />
