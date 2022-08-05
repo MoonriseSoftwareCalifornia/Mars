@@ -1,8 +1,10 @@
 name: Build and deploy .NET Core Function App to Azure functions app
 on:
-  push:
-    branches:
-    - main
+  workflow_dispatch
+  #push:
+  #  branches: [ main ]
+  #pull_request:
+  #  branches: [ main ]
 env:
   AZURE_FUNCTIONAPP_NAME: mars-demo
   AZURE_FUNCTIONAPP_PACKAGE_PATH: Mars.CreateDemoDatabase/publish
