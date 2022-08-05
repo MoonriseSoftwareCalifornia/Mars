@@ -121,6 +121,14 @@ builder.Services.AddMvc()
 // Add Kendo Services
 builder.Services.AddKendo();
 
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    // This section docs are here: https://docs.microsoft.com/en-us/aspnet/core/security/authentication/scaffold-identity?view=aspnetcore-3.1&tabs=visual-studio#full
+    options.LoginPath = "/Identity/Account/Login";
+    options.LogoutPath = "/Identity/Account/Logout";
+    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+});
+
 // BEGIN
 // When deploying to a Docker container, the OAuth redirect_url
 // parameter may have http instead of https.
@@ -166,6 +174,11 @@ else
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+// BEGIN
+// https://seankilleen.com/2020/06/solved-net-core-azure-ad-in-docker-container-incorrectly-uses-an-non-https-redirect-uri/
+app.UseForwardedHeaders();
+// END
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
