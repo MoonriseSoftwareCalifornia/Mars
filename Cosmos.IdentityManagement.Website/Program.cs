@@ -3,6 +3,7 @@ using AspNetCore.Identity.Services.SendGrid;
 using AspNetCore.Identity.Services.SendGrid.Extensions;
 using Cosmos.IdentityManagement.Website.Data;
 using Cosmos.IdentityManagement.Website.Models;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Serialization;
@@ -119,6 +120,38 @@ builder.Services.AddMvc()
 
 // Add Kendo Services
 builder.Services.AddKendo();
+
+// BEGIN
+// When deploying to a Docker container, the OAuth redirect_url
+// parameter may have http instead of https.
+// Providers often do not allow http because it is not secure.
+// So authentication will fail.
+// Article below shows instructions for fixing this.
+//
+// NOTE: There is a companion secton below in the Configure method. Must have this
+// app.UseForwardedHeaders();
+//
+// https://seankilleen.com/2020/06/solved-net-core-azure-ad-in-docker-container-incorrectly-uses-an-non-https-redirect-uri/
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor |
+                               ForwardedHeaders.XForwardedProto;
+    // Only loopback proxies are allowed by default.
+    // Clear that restriction because forwarders are enabled by explicit
+    // configuration.
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+// END
+
+// Use this so the redirect does not follow the DNS name of the app service
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    // This section docs are here: https://docs.microsoft.com/en-us/aspnet/core/security/authentication/scaffold-identity?view=aspnetcore-3.1&tabs=visual-studio#full
+    options.LoginPath = "/Identity/Account/Login";
+    options.LogoutPath = "/Identity/Account/Logout";
+    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+});
 
 var app = builder.Build();
 
