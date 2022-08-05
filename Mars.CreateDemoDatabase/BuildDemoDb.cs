@@ -1,14 +1,13 @@
+using AspNetCore.Identity.CosmosDb;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Azure.WebJobs;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
-using AspNetCore.Identity.CosmosDb;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Host;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 
 namespace Mars.CreateDemoDatabase
 {
@@ -23,7 +22,7 @@ namespace Mars.CreateDemoDatabase
         }
 
         [FunctionName("BuildDemoDb")]
-        public async Task Run([TimerTrigger("0 * * * * *")] TimerInfo myTimer, ILogger log)
+        public async Task Run([TimerTrigger("0 0 */4 * * *")] TimerInfo myTimer, ILogger log)
         {
             log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
 
