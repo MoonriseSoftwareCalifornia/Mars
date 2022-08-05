@@ -16,7 +16,7 @@ html {
 body {
     margin-bottom: 60px;
     background-color: rgb(33, 32, 32);
-    color:rgb(218, 216, 216)
+    color: rgb(218, 216, 216)
 }
 
 .btn-primary {
@@ -51,3 +51,15 @@ input {
     background-image: none !important;
     color: black !important;
 }
+
+input[type="checkbox"] {
+    width: 24px;
+    height: 24px;
+    border: 2px solid #555555;
+    background-clip: content-box;
+    background-color: #969291 !important;
+}
+
+    input[type="checkbox"]:checked {
+        background-color: #c90808 !important;
+    }
