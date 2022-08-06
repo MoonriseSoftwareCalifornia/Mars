@@ -110,16 +110,34 @@ builder.Services.AddSingleton(marsRunMode);
 // Add SendGrid IEmail sender
 builder.Services.AddSendGridEmailProvider(sendGridOptions);
 
+// Add Kendo Services
+builder.Services.AddKendo();
+
 // Need to add this for Telerik - Grids for example won't work because
 // JSON object properties will start with lower case letters instead of upper.
 // https://docs.telerik.com/aspnet-core/getting-started/prerequisites/environment-support#json-serialization
 builder.Services.AddMvc()
     .AddNewtonsoftJson(options =>
         options.SerializerSettings.ContractResolver =
-            new DefaultContractResolver());
+            new DefaultContractResolver())
+    // Add this so the login paths are made relative to the website.
+    .AddRazorPagesOptions(options =>
+    {
+        // This section docs are here: https://docs.microsoft.com/en-us/aspnet/core/security/authentication/scaffold-identity?view=aspnetcore-3.1&tabs=visual-studio#full
+        //options.AllowAreas = true;
+        options.Conventions.AuthorizeAreaFolder("Identity", "/Account/Manage");
+        options.Conventions.AuthorizeAreaPage("Identity", "/Account/Logout");
+    });
 
-// Add Kendo Services
-builder.Services.AddKendo();
+// https://docs.microsoft.com/en-us/aspnet/core/security/enforcing-ssl?view=aspnetcore-2.1&tabs=visual-studio#http-strict-transport-security-protocol-hsts
+builder.Services.AddHsts(options =>
+{
+    options.Preload = true;
+    options.IncludeSubDomains = true;
+    options.MaxAge = TimeSpan.FromDays(365);
+        //options.ExcludedHosts.Add("example.com");
+        //options.ExcludedHosts.Add("www.example.com");
+});
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
@@ -151,15 +169,6 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     options.KnownProxies.Clear();
 });
 // END
-
-// Use this so the redirect does not follow the DNS name of the app service
-builder.Services.ConfigureApplicationCookie(options =>
-{
-    // This section docs are here: https://docs.microsoft.com/en-us/aspnet/core/security/authentication/scaffold-identity?view=aspnetcore-3.1&tabs=visual-studio#full
-    options.LoginPath = "/Identity/Account/Login";
-    options.LogoutPath = "/Identity/Account/Logout";
-    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
-});
 
 var app = builder.Build();
 

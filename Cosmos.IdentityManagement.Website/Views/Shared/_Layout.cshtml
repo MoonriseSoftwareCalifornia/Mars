@@ -1,4 +1,10 @@
 ﻿@inject MarsRunMode marsRunMode
+@{
+    var assem = System.Reflection.Assembly.GetExecutingAssembly();
+    var assemblies = assem.GetReferencedAssemblies();
+    var kendo = assemblies.FirstOrDefault(a => a.Name.Contains("kendo", StringComparison.CurrentCultureIgnoreCase));
+    var kendoVersion = $"{kendo.Version.Major}.{kendo.Version.Minor}.{kendo.Version.Build}";
+}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,7 +13,7 @@
     <title>@ViewData["Title"] - MARS</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/Cosmos.IdentityManagement.Website.styles.css" asp-append-version="true" />
-    <link href="https://kendo.cdn.telerik.com/2022.2.621/styles/kendo.bootstrap-main.min.css" rel="stylesheet" type="text/css" />
+    <link href="https://kendo.cdn.telerik.com/@kendoVersion/styles/kendo.bootstrap-main.min.css" rel="stylesheet" type="text/css" />
 
     <link rel="stylesheet" href="~/css/Mars.css" />
     <link rel="stylesheet" href="~/css/site.css" />
@@ -15,8 +21,8 @@
     <script src="https://kit.fontawesome.com/7ba01e580f.js" crossorigin="anonymous"></script>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="https://kendo.cdn.telerik.com/2022.2.621/js/kendo.all.min.js"></script>
-    <script src="https://kendo.cdn.telerik.com/2022.2.621/js/kendo.aspnetmvc.min.js"></script>
+    <script src="https://kendo.cdn.telerik.com/@kendoVersion/js/kendo.all.min.js"></script>
+    <script src="https://kendo.cdn.telerik.com/@kendoVersion/js/kendo.aspnetmvc.min.js"></script>
 </head>
 <body class="k-body">
     <header>
