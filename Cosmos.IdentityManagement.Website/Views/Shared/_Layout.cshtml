@@ -23,6 +23,18 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="https://kendo.cdn.telerik.com/@kendoVersion/js/kendo.all.min.js"></script>
     <script src="https://kendo.cdn.telerik.com/@kendoVersion/js/kendo.aspnetmvc.min.js"></script>
+    @if (!string.IsNullOrEmpty(marsRunMode.GTag))
+    {
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=@marsRunMode.GTag"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() { dataLayer.push(arguments); }
+            gtag('js', new Date());
+
+            gtag('config', '@marsRunMode.GTag');
+        </script>
+    }
 </head>
 <body class="k-body">
     <header>
@@ -39,7 +51,7 @@
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                
+
                 @if (marsRunMode.SendGridSandboxMode)
                 {
                     <a href="https://www.moonrise.net/open_source/mars/sandbox_mode" target="_blank" class="btn btn-sm btn-primary">Sandbox mode on</a>
@@ -59,7 +71,7 @@
                             <a class="nav-link" target="_blank" href="https://www.moonrise.net/open_source/mars">Documentation</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" target="_blank"  href="https://www.moonrise.net/ContactUs">Questions/Help</a>
+                            <a class="nav-link" target="_blank" href="https://www.moonrise.net/ContactUs">Questions/Help</a>
                         </li>
                     </ul>
                     <partial name="_LoginPartial" />

@@ -8,9 +8,9 @@
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <Authors>toiyabe62</Authors>
     <Company>Moonrise Software LLC</Company>
-    <Version>1.0.2.3</Version>
-    <AssemblyVersion>1.0.2.3</AssemblyVersion>
-    <FileVersion>1.0.2.3</FileVersion>
+    <Version>1.0.3.1</Version>
+    <AssemblyVersion>1.0.3.1</AssemblyVersion>
+    <FileVersion>1.0.3.1</FileVersion>
     <Product>MARS</Product>
     <Description>Managed Account Resource Manager for ASP.NET Identity.</Description>
     <Copyright>Moonrise Software LLC</Copyright>
@@ -20,14 +20,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\..\CosmosSoftware\AspNetCore.Identity.Services.SendGrid\README.md">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="AspNetCore.Identity.CosmosDb" Version="2.0.12" />
+    <PackageReference Include="AspNetCore.Identity.CosmosDb" Version="2.0.13" />
     <PackageReference Include="AspNetCore.Identity.Services.SendGrid" Version="2.0.6" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.7" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.7" />

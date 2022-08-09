@@ -21,10 +21,13 @@ var cosmosIdentityDbName = builder.Configuration.GetValue<string>("CosmosIdentit
 // IMPORTANT: Remove this setting if after first run. It will improve startup performance.
 var setupDb = builder.Configuration.GetValue<string>("SetupDb");
 
+// Google Analytics Tag
+var gTag = builder.Configuration.GetValue<string>("GTag");
+
 // Sandbox mode?
 var sendGridSandbox = builder.Configuration.GetValue<string>("SendGridSandbox");
 
-var marsRunMode = new MarsRunMode(setupDb, sendGridSandbox);
+var marsRunMode = new MarsRunMode(setupDb, sendGridSandbox, gTag);
 
 // Supported values "Cosmos" or "mssql";
 var dbProvider = builder.Configuration.GetValue<string>("DbProvider");

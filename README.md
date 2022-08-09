@@ -48,6 +48,7 @@ Follow these steps to install this application:
     "SendGridApiKey": "YOUR SENDGRID API KEY",
     "SetupDb": "true", // Set to true if you want the database to be setup
     "DbProvider" : "cosmos", // cosmos or mssql
+    "GTag": "YOUR GOOGLE ANALYTICS MEASUREMENT ID" // Optional Google Analytics ID
   }
 ```
 
