@@ -4,13 +4,16 @@ Managed Account Resources System (MARS) by Moonrise Software LLC
 
 [![Docker Publish](https://github.com/CosmosSoftware/Mars/actions/workflows/docker.yml/badge.svg)](https://github.com/CosmosSoftware/Mars/actions/workflows/docker.yml)
 
+To install click the button below after you have installed either an Azure Cosmos DB or Microsoft SQL database, and have a SendGrid API Key.  Alternatively, follow the [docker container installation](#docker-container-installation) instructions below to install to another cloud provider.
+
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FCosmosSoftware%2FMars%2Fmain%2FCosmos.IdentityManagement.Website%2Fazuredeploy.json)
+
 
 ## What is Mars?
 
 Mars is a user account and role resource management website built on the
 [ASP.NET Core Identity Framework](https://docs.microsoft.com/en-us/aspnet/core/security/authentication/identity?view=aspnetcore-6.0&tabs=visual-studio). Mars is open source and is free to install and use.  It works with either
-Azure Cosmos DB or Microsoft SQL Server.  [Docker container](https://hub.docker.com/repository/docker/toiyabe/mars) installation instructions are below.
+Azure Cosmos DB or Microsoft SQL Server.  [Docker container installation](#docker-container-installation) instructions are below.
 
 Functionality includes:
 
@@ -34,11 +37,11 @@ This product has been tested with the following databases:
 * Azure Cosmos Database
 * Microsoft SQL Server
 
-## Installation
+## Docker Container Installation
 
 Follow these steps to install this application:
 
-1. Deploy the docker container to your prefered Docker host.
+1. Deploy the [docker container](https://hub.docker.com/repository/docker/toiyabe/mars) to your prefered Docker host.
 2. Create a SendGrid account and obtain a SendGrid API Key
 3. Set the following configuration variables:
 
