@@ -4,6 +4,8 @@ Managed Account Resources System (MARS) by Moonrise Software LLC
 
 [![Docker Publish](https://github.com/CosmosSoftware/Mars/actions/workflows/docker.yml/badge.svg)](https://github.com/CosmosSoftware/Mars/actions/workflows/docker.yml)
 
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FCosmosSoftware%2FMars%2Fmain%2FCosmos.IdentityManagement.Website%2Fazuredeploy.json)
+
 ## What is Mars?
 
 Mars is a user account and role resource management website built on the
