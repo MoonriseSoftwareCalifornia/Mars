@@ -4,10 +4,11 @@ Managed Account Resources System (MARS) by Moonrise Software LLC
 
 [![Docker Publish](https://github.com/CosmosSoftware/Mars/actions/workflows/docker.yml/badge.svg)](https://github.com/CosmosSoftware/Mars/actions/workflows/docker.yml)
 
-To install click the button below after you have installed either an Azure Cosmos DB or Microsoft SQL database, and have a SendGrid API Key.  Alternatively, follow the [docker container installation](#docker-container-installation) instructions below to install to another cloud provider.
+To install click the button below after you have installed either an Azure Cosmos DB or Microsoft SQL database, and have a SendGrid API Key.
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FCosmosSoftware%2FMars%2Fmain%2FCosmos.IdentityManagement.Website%2Fazuredeploy.json)
 
+Alternatively, follow the [docker container installation](#docker-container-installation) instructions below to install to another cloud provider.
 
 ## What is Mars?
 
