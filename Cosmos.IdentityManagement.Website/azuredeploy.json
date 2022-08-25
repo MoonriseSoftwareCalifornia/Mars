@@ -19,7 +19,7 @@
             }
         },
         "ConnectionString": {
-            "type": "string",
+            "type": "secureString",
             "metadata": {
                 "description": "Cosmos or MS SQL connection string"
             }
@@ -32,7 +32,7 @@
             "allowedValues": [ true, false ]
         },
         "SendGridApiKey": {
-            "type": "string",
+            "type": "secureString",
             "metadata": {
                 "description": "Your SendGrid account API Key."
             }
@@ -44,8 +44,8 @@
             },
             "allowedValues": [ true, false ]
         },
-        "GTag": {
-            "type": "string",
+        "GoogleAnalyticsTagId": {
+            "type": "secureString",
             "metadata": {
                 "description": "Google Analytics Measurement ID"
             }
@@ -149,7 +149,7 @@
                         "SetupDb": "[parameters('SetupDb')]",
                         "SendGridApiKey": "[parameters('SendGridApiKey')]",
                         "SendGridSandbox": "[parameters('SandboxMode')]",
-                        "GTag": "[parameters('GTag')]"
+                        "GTag": "[parameters('GoogleAnalyticsTagID')]"
                     }
                 },
                 {
