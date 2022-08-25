@@ -6,7 +6,7 @@ Managed Account Resources System (MARS) by Moonrise Software LLC
 
 ## Quick Install to Azure
 
-The following quckly installs Mars to your Azure account.  Before going further, please have these two items ready:
+The following quckly installs Mars to your Azure account.  Before going further, please have the following ready:
 
 * An [Azure Cosmos DB](https://docs.microsoft.com/en-us/azure/cosmos-db/sql/create-cosmosdb-resources-portal) or [Microsoft SQL database](https://docs.microsoft.com/en-us/azure/azure-sql/database/single-database-create-quickstart?view=azuresql&tabs=azure-portal), and
 * A [SendGrid](https://docs.sendgrid.com/for-developers/partners/microsoft-azure-2021#create-a-twilio-sendgrid-account) API Key
