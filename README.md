@@ -8,7 +8,7 @@ To install click the button below after you have installed either an Azure Cosmo
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FCosmosSoftware%2FMars%2Fmain%2FCosmos.IdentityManagement.Website%2Fazuredeploy.json)
 
-Alternatively, follow the [docker container installation](#docker-container-installation) instructions below to install to another cloud provider.
+Alternatively, follow the [docker container installation](#docker-container-installation) instructions below to install Mars to another cloud provider.
 
 ## What is Mars?
 
