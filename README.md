@@ -11,6 +11,9 @@ The following quckly installs Mars to your Azure account.  Before going further,
 * An [Azure Cosmos DB](https://docs.microsoft.com/en-us/azure/cosmos-db/sql/create-cosmosdb-resources-portal) or [Microsoft SQL database](https://docs.microsoft.com/en-us/azure/azure-sql/database/single-database-create-quickstart?view=azuresql&tabs=azure-portal), and
 * A [SendGrid](https://docs.sendgrid.com/for-developers/partners/microsoft-azure-2021#create-a-twilio-sendgrid-account) API Key
 
+IMPORTANT NOTE: If you need the Cosmos or SQL database setup (containers or tables created), answer "true" to the "Setup Db" question. After first run, it is
+a good idea to set this to "false."
+
 Next click the button below:
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FCosmosSoftware%2FMars%2Fmain%2FCosmos.IdentityManagement.Website%2Fazuredeploy.json)
