@@ -150,6 +150,16 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LoginPath = "/Identity/Account/Login";
     options.LogoutPath = "/Identity/Account/Logout";
     options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+    options.Events.OnRedirectToLogin = x =>
+    {
+        x.Response.Redirect("/Identity/Account/Login");
+        return Task.CompletedTask;
+    };
+    options.Events.OnRedirectToLogout = x =>
+    {
+        x.Response.Redirect("/Identity/Account/Logout");
+        return Task.CompletedTask;
+    };
 });
 
 var app = builder.Build();
