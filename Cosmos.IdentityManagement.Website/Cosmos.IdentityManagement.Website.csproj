@@ -8,9 +8,9 @@
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <Authors>toiyabe62</Authors>
     <Company>Moonrise Software LLC</Company>
-    <Version>1.0.3.3</Version>
-    <AssemblyVersion>1.0.3.3</AssemblyVersion>
-    <FileVersion>1.0.3.3</FileVersion>
+    <Version>1.0.3.4</Version>
+    <AssemblyVersion>1.0.3.4</AssemblyVersion>
+    <FileVersion>1.0.3.4</FileVersion>
     <Product>MARS</Product>
     <Description>Managed Account Resource Manager for ASP.NET Identity.</Description>
     <Copyright>Moonrise Software LLC</Copyright>

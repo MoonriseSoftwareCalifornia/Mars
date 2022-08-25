@@ -1,13 +1,13 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
     <DockerFastModeProjectMountDirectory>/home/site/wwwroot</DockerFastModeProjectMountDirectory>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <UserSecretsId>d93403d7-19de-417d-9ce5-15978c06ba63</UserSecretsId>
-    <Version>1.0.3.3</Version>
-    <AssemblyVersion>1.0.3.3</AssemblyVersion>
-    <FileVersion>1.0.3.3</FileVersion>
+    <Version>1.0.3.4</Version>
+    <AssemblyVersion>1.0.3.4</AssemblyVersion>
+    <FileVersion>1.0.3.4</FileVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="AspNetCore.Identity.CosmosDb" Version="2.0.16" />

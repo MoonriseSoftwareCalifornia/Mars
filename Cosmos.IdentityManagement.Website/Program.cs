@@ -150,6 +150,10 @@ builder.Services.ConfigureApplicationCookie(options =>
     //options.LoginPath = "/Identity/Account/Login";
     //options.LogoutPath = "/Identity/Account/Logout";
     //options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+    // The following is when using Docker container with a proxy like
+    // Azure front door. It ensures relative paths for redirects
+    // which is necessary when the public DNS at Front door is www.mycompany.com 
+    // and the DNS of the App Service is something like myappservice.azurewebsites.net.
     options.Events.OnRedirectToLogin = x =>
     {
         x.Response.Redirect("/Identity/Account/Login");
