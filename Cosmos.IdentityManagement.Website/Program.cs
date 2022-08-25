@@ -147,9 +147,9 @@ builder.Services.AddHsts(options =>
 builder.Services.ConfigureApplicationCookie(options =>
 {
     // This section docs are here: https://docs.microsoft.com/en-us/aspnet/core/security/authentication/scaffold-identity?view=aspnetcore-3.1&tabs=visual-studio#full
-    options.LoginPath = "/Identity/Account/Login";
-    options.LogoutPath = "/Identity/Account/Logout";
-    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+    //options.LoginPath = "/Identity/Account/Login";
+    //options.LogoutPath = "/Identity/Account/Logout";
+    //options.AccessDeniedPath = "/Identity/Account/AccessDenied";
     options.Events.OnRedirectToLogin = x =>
     {
         x.Response.Redirect("/Identity/Account/Login");
@@ -158,6 +158,11 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.Events.OnRedirectToLogout = x =>
     {
         x.Response.Redirect("/Identity/Account/Logout");
+        return Task.CompletedTask;
+    };
+    options.Events.OnRedirectToAccessDenied = x =>
+    {
+        x.Response.Redirect("/Identity/Account/AccessDenied");
         return Task.CompletedTask;
     };
 });
